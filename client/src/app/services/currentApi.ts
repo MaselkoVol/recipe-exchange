@@ -1,4 +1,4 @@
-import { RecipeShortInfo, User } from "../types";
+import { MetaType, RecipeShortInfo, User } from "../types";
 import { api } from "./api";
 
 export const currentApi = api.injectEndpoints({
@@ -9,7 +9,7 @@ export const currentApi = api.injectEndpoints({
       }),
     }),
     getCurrentUserRecipes: builder.query<
-      { data: RecipeShortInfo[]; meta: { page: number; limit: number; totalPages: number } },
+      { data: RecipeShortInfo[]; meta: MetaType },
       { page: string; limit: string; search: string }
     >({
       query: ({ page, limit, search }) => ({

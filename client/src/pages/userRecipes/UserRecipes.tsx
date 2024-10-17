@@ -1,102 +1,55 @@
-import { Box, CircularProgress, Pagination, Stack, Typography } from "@mui/material";
+import { Box, Pagination, Stack, Typography } from "@mui/material";
 import { useLazyGetCurrentUserRecipesQuery } from "../../app/services/currentApi";
 import MyButton from "../../components/UI/MyButton";
 import ClientLink from "../../components/UI/ClientLink";
-import { AddCircle, Search } from "@mui/icons-material";
+import { AddCircle } from "@mui/icons-material";
 import { useColors } from "../../hooks/useColors";
 import RecipeShort from "../../components/RecipeShort";
-import MyTextField from "../../components/UI/input/MyTextField";
-import Form from "../../components/UI/Form";
-import { RecipeShortInfo } from "../../app/types";
+import { MetaType, RecipeShortInfo } from "../../app/types";
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import { responseErrorCheck } from "../../utils/functions/responseErrorCheck";
 import { motion, useInView } from "framer-motion";
+import SearchBar from "../../components/SearchBar";
+import { StringParamsType, useControlParams } from "../../hooks/useControlParams";
 
 type Props = {};
-type QueryType = {
-  page: string;
-  limit: string;
-  search: string;
-};
 
 const UserRecipes = (props: Props) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const startValues = { limit: "10", page: "1", search: "" };
-
-  const getParams = () => {
-    return {
-      limit: searchParams.get("limit") || startValues.limit,
-      page: searchParams.get("page") || startValues.page,
-      search: searchParams.get("search") || startValues.search,
-    };
-  };
-  const initiateParams = () => {
-    const modifiedSearchParams = new URLSearchParams(searchParams);
-    let isModified = false;
-    if (!modifiedSearchParams.has("limit")) {
-      modifiedSearchParams.set("limit", startValues.limit);
-      isModified = true;
-    }
-    if (!modifiedSearchParams.has("page")) {
-      modifiedSearchParams.set("page", startValues.page);
-      isModified = true;
-    }
-    if (!modifiedSearchParams.has("search")) {
-      modifiedSearchParams.set("search", startValues.search);
-      isModified = true;
-    }
-    if (isModified) {
-      setSearchParams(modifiedSearchParams, { replace: true });
-    }
-  };
-
-  const setParams = (value: QueryType, replace?: boolean) => {
-    const modifiedSearchParams = new URLSearchParams(searchParams);
-    modifiedSearchParams.set("page", value.page);
-    modifiedSearchParams.set("limit", value.limit);
-    modifiedSearchParams.set("search", value.search);
-    setSearchParams(modifiedSearchParams, { replace });
-    return value;
-  };
-
-  const [getRecipes, { data, error, isFetching }] = useLazyGetCurrentUserRecipesQuery();
+  // the argument is the inital values
+  const { initiateParams, getParams, setParams, searchParams } = useControlParams({
+    page: "1",
+    limit: "10",
+    search: "",
+  });
   const colors = useColors();
+  // function to get recipes from backend
+  const [getRecipes, { data, error, isFetching }] = useLazyGetCurrentUserRecipesQuery();
+  // recipes is the content that is shown on the page
   const [recipes, setRecipes] = useState<RecipeShortInfo[] | null>(null);
-  const [meta, setMeta] = useState<{ page: number; limit: number; totalPages: number } | null>(null);
-  const [query, setQuery] = useState<QueryType>(getParams());
-  const [inputValue, setInputValue] = useState(query.search);
+  // meta is information for pagination.
+  const [meta, setMeta] = useState<MetaType | null>(null);
+  // indicates if user is writing or not
   const [isWriting, setIsWriting] = useState(false);
+  // object that contains parameters of the url
+  const [query, setQuery] = useState<StringParamsType>(getParams());
+  // value in the input form
+  const [inputValue, setInputValue] = useState(query.search);
 
   useEffect(() => {
-    if (!isWriting) {
-      setIsWriting(true);
-    }
-    const handler = setTimeout(() => {
-      setParams({ ...(query || startValues), page: "1", search: inputValue }, true);
-      setTimeout(() => {
-        setIsWriting(false);
-      }, 200);
-    }, 300); // 300ms delaye
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [inputValue]);
-
-  useEffect(() => {
-    console.log("first");
+    // if doesn't have any of initial queries, replace url with correct queries
     initiateParams();
   }, []);
+
+  useEffect(() => {
+    setQuery(getParams());
+  }, [searchParams]);
+
   useEffect(() => {
     if (!isWriting) {
       setInputValue(query.search);
     }
-    getRecipes(query);
+    getRecipes(query as any);
   }, [query]);
-  useEffect(() => {
-    setQuery(getParams());
-  }, [searchParams]);
 
   useEffect(() => {
     if (isWriting) return;
@@ -129,54 +82,16 @@ const UserRecipes = (props: Props) => {
           </Typography>
         </ClientLink>
       </Box>
-
-      <Form
-        onSubmit={(e) => {
-          e.preventDefault();
-          getRecipes(query);
-        }}
-        sx={{ display: "flex", gap: 2 }}
-      >
-        <MyTextField
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          isContrast
-          name={"search"}
-          fullWidth
-          type="search"
-          label="search recipe"
-        />
-        <MyButton disabled={isFetching || isWriting} type="submit" variant="contained">
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-            }}
-          >
-            <Search sx={{ opacity: isFetching || isWriting ? 0 : 1 }} />
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-            }}
-          >
-            <CircularProgress size={28} sx={{ opacity: isFetching || isWriting ? 1 : 0 }} />
-          </Box>
-        </MyButton>
-      </Form>
+      <SearchBar
+        getValues={getRecipes}
+        inputValue={inputValue}
+        setInputValue={setInputValue}
+        isFetching={isFetching}
+        isWriting={isWriting}
+        setIsWriting={setIsWriting}
+        setParams={setParams}
+        query={query}
+      />
 
       {isFetching || !recipes ? (
         ""
@@ -186,7 +101,7 @@ const UserRecipes = (props: Props) => {
         </Typography>
       ) : recipes.length === 0 ? (
         <ClientLink disableHoverEffect={true} to={"/recipes/create"}>
-          <MyButton fullWidth sx={{ display: "flex", alignItems: "center", gap: 1 }} variant="contained">
+          <MyButton size="large" fullWidth sx={{ display: "flex", alignItems: "center", gap: 1 }} variant="contained">
             Create recipe now
           </MyButton>
         </ClientLink>
@@ -200,7 +115,7 @@ const UserRecipes = (props: Props) => {
               <Pagination
                 count={meta?.totalPages}
                 page={parseInt(query.page)}
-                onChange={(e, value) => setParams({ ...(query || startValues), page: value.toString() }, false)}
+                onChange={(e, value) => setParams({ ...query, page: value.toString() }, false)}
               />
             </Box>
           )}

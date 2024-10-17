@@ -10,11 +10,9 @@ import { router } from "./routes";
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <MaterialTheme>
-        <RouterProvider router={router} />
-      </MaterialTheme>
-    </Provider>
-  </React.StrictMode>
+  <Provider store={store}>
+    <MaterialTheme>
+      <RouterProvider router={router} />
+    </MaterialTheme>
+  </Provider>
 );

@@ -61,31 +61,25 @@ export type Recipe = RecipeShortInfo & {
   updatedAt: string;
 };
 
+export type MetaType = {
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
 export type AllRecipes = {
   data: RecipeShortInfo[];
-  meta: {
-    page: number;
-    limit: number;
-    totalPage: number;
-  };
+  meta: MetaType;
 };
 
 export type LikedRecipes = {
   data: RecipeShortInfo[];
-  meta: {
-    page: number;
-    limit: number;
-    totalPage: number;
-  };
+  meta: MetaType;
 };
 
 export type FavoriteRecipes = {
   data: RecipeShortInfo[];
-  meta: {
-    page: number;
-    limit: number;
-    totalPage: number;
-  };
+  meta: MetaType;
 };
 
 export type UserFollowing = {
@@ -93,11 +87,7 @@ export type UserFollowing = {
     id: string;
     following: UserWithFollowsInfo;
   }[];
-  meta: {
-    page: number;
-    limit: number;
-    totalPage: number;
-  };
+  meta: MetaType;
 };
 
 export type UserFollowers = {
@@ -105,9 +95,5 @@ export type UserFollowers = {
     id: string;
     follower: UserWithFollowsInfo;
   }[];
-  meta: {
-    page: number;
-    limit: number;
-    totalPage: number;
-  };
+  meta: MetaType;
 };
