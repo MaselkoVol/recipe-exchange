@@ -8,6 +8,7 @@ import ClientLink from "./UI/ClientLink";
 import MyButton from "./UI/MyButton";
 import { RecipeShortInfo } from "../app/types";
 import { formatDate } from "../utils/functions/formatDate";
+import MyCard from "./UI/MyCard";
 
 type Props = {
   recipe: RecipeShortInfo;
@@ -16,18 +17,7 @@ type Props = {
 const RecipeShort = ({ recipe }: Props) => {
   const colors = useColors();
   return (
-    <Card
-      elevation={0}
-      sx={{
-        borderRadius: 2,
-        bgcolor: colors.bg,
-        p: 2,
-        display: "flex",
-        flexDirection: "column",
-        gap: 1,
-      }}
-      key={recipe.id}
-    >
+    <MyCard>
       <Typography variant="h5" component="h4">
         {recipe.title}
       </Typography>
@@ -108,7 +98,7 @@ const RecipeShort = ({ recipe }: Props) => {
           </ClientLink>
         </Box>
       </Box>
-    </Card>
+    </MyCard>
   );
 };
 

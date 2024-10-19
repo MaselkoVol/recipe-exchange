@@ -10,12 +10,14 @@ const Register = lazy(() => import("./features/auth/Register"));
 const CreateRecipe = lazy(() => import("./pages/createRecipe/CreateRecipe"));
 const Dashboard = lazy(() => import("./pages/dashboard/Dashboard"));
 const UserRecipes = lazy(() => import("./pages/userRecipes/UserRecipes"));
+const Recipe = lazy(() => import("./pages/recipe/Recipe"));
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
+      // auth routes
       {
         path: "login",
         element: (
@@ -32,6 +34,7 @@ export const router = createBrowserRouter([
           </Suspense>
         ),
       },
+      // recipe routes
       {
         path: "recipes/create",
         element: <RequireAuth />,
@@ -47,6 +50,15 @@ export const router = createBrowserRouter([
         ],
       },
       {
+        path: "recipes/:id",
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <Recipe />
+          </Suspense>
+        ),
+      },
+      // dashboard routes
+      {
         path: "current",
         element: <RequireAuth />,
         children: [
@@ -57,6 +69,7 @@ export const router = createBrowserRouter([
                 <Dashboard />
               </Suspense>
             ),
+            // user related routes
             children: [
               {
                 path: "recipes",

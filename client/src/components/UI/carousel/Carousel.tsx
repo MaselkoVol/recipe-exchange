@@ -4,10 +4,9 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
-
-// Import Swiper styles
-import "swiper/css";
 import { styled, SxProps } from "@mui/material";
+import { FC } from "react";
+import "./Carousel.css";
 
 const CustomSwiper = styled(Swiper)(({ theme }) => ({}));
 
@@ -16,22 +15,20 @@ type Props = SwiperProps & {
   navigation?: boolean;
   pagination?: boolean;
   scrollbar?: boolean;
-  slides: React.ReactNode[];
+  children: React.ReactNode;
 };
 
-const Carousel = ({ sx, navigation, pagination, scrollbar, children, slides, ...rest }: Props) => {
+const Carousel: FC<Props> = ({ sx, navigation, pagination, scrollbar, children, ...rest }) => {
   return (
     <CustomSwiper
       sx={sx}
       modules={[Navigation, Pagination, Scrollbar]}
-      navigation={navigation}
-      pagination={pagination && { clickable: true }}
-      scrollbar={scrollbar && { draggable: true }}
+      navigation={navigation} // Correctly pass navigation
+      pagination={pagination && { clickable: true }} // Pass pagination
+      scrollbar={scrollbar && { draggable: true }} // Pass scrollbar
       {...rest}
     >
-      {slides.map((item: React.ReactNode, idx: number) => (
-        <SwiperSlide key={idx}>{item}</SwiperSlide>
-      ))}
+      {children}
     </CustomSwiper>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Header from "./components/Header";
-import { Alert, Box, List, ListItem, useTheme } from "@mui/material";
+import { Alert, Box, List, ListItem, Palette, PaletteColor, useTheme } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import Footer from "./components/Footer";
 import { useRefreshMutation } from "./app/services/authApi";
@@ -9,10 +9,12 @@ import { setCredentials } from "./features/auth/authSlice";
 import { isTouchScreen } from "./utils/functions/isTouchScreen";
 import { setMouse, setTouch } from "./features/touchScreen/touchScreenSlice";
 import SnackBar from "./features/snackbar/SnackBar";
+import { useColors } from "./hooks/useColors";
 
 function App() {
   const dispatch = useDispatch();
   const [refresh] = useRefreshMutation();
+  const colors = useColors();
   const authCheck = async () => {
     const res = await refresh();
     if (res.data) {
@@ -26,7 +28,14 @@ function App() {
       dispatch(setMouse());
     }
   };
+  function changeColor() {
+    const root = document.documentElement;
+    root.style.setProperty(`--primary-main`, colors.palette.primary.main);
+    root.style.setProperty(`--grey-700`, colors.palette.grey[700]);
+  }
+
   useEffect(() => {
+    changeColor();
     authCheck();
     isTouchScreenCheck();
   }, []);

@@ -1,3 +1,4 @@
+import { Recipe } from "../types";
 import { api } from "./api";
 
 export const recipeApi = api.injectEndpoints({
@@ -9,7 +10,12 @@ export const recipeApi = api.injectEndpoints({
         body: data,
       }),
     }),
+    getRecipe: builder.query<Recipe, string>({
+      query: (id) => ({
+        url: `/recipes/${id}`,
+      }),
+    }),
   }),
 });
-export const { createRecipe } = recipeApi.endpoints;
-export const { useCreateRecipeMutation } = recipeApi;
+export const { createRecipe, getRecipe } = recipeApi.endpoints;
+export const { useCreateRecipeMutation, useGetRecipeQuery, useLazyGetRecipeQuery } = recipeApi;

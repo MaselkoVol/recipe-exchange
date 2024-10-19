@@ -25,7 +25,7 @@ const Dashboard = (props: Props) => {
       >
         <Box sx={{ gridColumn: { xs: 1, sm: 1, xl: 1 }, display: { xs: "none", xl: "block" } }}>
           <Box sx={{ position: "sticky", top: 87 }}>
-            <ActionList user={user} />-
+            <ActionList user={user} />
           </Box>
         </Box>
         <Box

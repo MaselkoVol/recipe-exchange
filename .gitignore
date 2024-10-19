@@ -6,3 +6,5 @@
 # Optional: Ignore build artifacts or other generated files
 **/dist
 **/build
+
+/server/public

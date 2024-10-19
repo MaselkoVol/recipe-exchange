@@ -1,20 +1,34 @@
-import { Avatar, Box, Skeleton, Typography, useTheme } from "@mui/material";
-import { User } from "../app/types";
+import { Avatar, Box, Skeleton, SxProps, Typography, useTheme } from "@mui/material";
+import { User, UserShortInfo } from "../app/types";
 
 type Props = {
-  user: User | undefined;
+  user: UserShortInfo | undefined;
+  hideEmail?: boolean;
+  sx?: SxProps;
+  avatarSize?: number;
+  centered?: boolean;
+  reversed?: boolean;
 };
 
-const UserInfo = ({ user }: Props) => {
+const UserInfo = ({ user, reversed = false, hideEmail = false, sx, avatarSize = 60, centered = false }: Props) => {
   const theme = useTheme();
   return (
-    <Box>
-      <Box sx={{ display: "flex", gap: 1, alignItems: "flex-end" }}>
+    <Box sx={sx}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: reversed ? "row-reverse" : "row",
+          gap: 1,
+          alignItems: centered ? "center" : "flex-end",
+        }}
+      >
         <Avatar
           sx={{
-            border: `2px solid ${theme.palette.mode === "dark" ? "white" : theme.palette.primary.main}`,
-            width: 60,
-            height: 60,
+            border: `${avatarSize / 20}px solid ${
+              theme.palette.mode === "dark" ? "white" : theme.palette.primary.main
+            }`,
+            width: avatarSize,
+            height: avatarSize,
           }}
           alt={user?.name}
           src={user?.avatarUrl || ""}
@@ -29,16 +43,18 @@ const UserInfo = ({ user }: Props) => {
           )}
         </Box>
       </Box>
-      {user?.email ? (
-        <Typography
-          sx={{ mt: 1, wordWrap: "break-word", overflowWrap: "break-word", fontSize: { xs: 18, md: 22 } }}
-          variant="h4"
-        >
-          {user?.email}
-        </Typography>
-      ) : (
-        <Skeleton sx={{ width: 200, height: { xs: 30, md: 36 } }} animation="wave" />
-      )}
+
+      {!hideEmail &&
+        (user?.email ? (
+          <Typography
+            sx={{ mt: 1, wordWrap: "break-word", overflowWrap: "break-word", fontSize: { xs: 18, md: 22 } }}
+            variant="h4"
+          >
+            {user?.email}
+          </Typography>
+        ) : (
+          <Skeleton sx={{ width: 200, height: { xs: 30, md: 36 } }} animation="wave" />
+        ))}
     </Box>
   );
 };
