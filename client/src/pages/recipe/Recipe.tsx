@@ -11,7 +11,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useGetRecipeQuery } from "../../app/services/recipeApi";
 import Image from "../../components/UI/Image";
@@ -24,6 +24,12 @@ import MyCard from "../../components/UI/MyCard";
 import Carousel from "../../components/UI/carousel/Carousel";
 import { SwiperSlide } from "swiper/react";
 import MyLabel from "../../components/UI/MyLabel";
+import { convertToParagraphs } from "../../utils/functions/convertToParagraphs";
+import {
+  useAddRecipeToLikedMutation,
+  useLazyIsRecipeLikedQuery,
+  useRemoveRecipeFromLikedMutation,
+} from "../../app/services/likesApi";
 
 type Props = {};
 
@@ -32,18 +38,62 @@ const Recipe = (props: Props) => {
   const matches = useMediaQuery(theme.breakpoints.up("md"));
   const [selectedURL, setSelectedURL] = useState<string | null>(null);
   const colors = useColors();
+
   const params = useParams();
-  const { data: recipe, isLoading, error } = useGetRecipeQuery(params.id || "");
-  return error ? (
+  const { data: recipe, isLoading: isRecipeLoading, isError: isRecipeError } = useGetRecipeQuery(params.id || "");
+  const [likeRecipe, { isError: likeError }] = useAddRecipeToLikedMutation();
+  const [unlikeRecipe, { isError: unlikeError }] = useRemoveRecipeFromLikedMutation();
+  const [getIsLiked, { data: isLikedData, isError: isLikedError }] = useLazyIsRecipeLikedQuery();
+  const [isLiked, setIsLiked] = useState(false);
+
+  const likeController = () => {
+    if (!recipe?.id) return;
+    setIsLiked(!isLiked);
+    if (!isLiked) {
+      likeRecipe(recipe.id);
+    } else {
+      unlikeRecipe(recipe.id);
+    }
+  };
+
+  useEffect(() => {
+    if (!isLikedData) return;
+    if (isLikedData.liked) {
+      setIsLiked(true);
+    } else {
+      setIsLiked(false);
+    }
+  }, [isLikedData]);
+
+  useEffect(() => {
+    setIsLiked(false);
+  }, [isLikedError]);
+
+  useEffect(() => {
+    if (!likeError) return;
+    setIsLiked(false);
+  }, [likeError]);
+
+  useEffect(() => {
+    if (!unlikeError) return;
+    setIsLiked(true);
+  }, [unlikeError]);
+
+  useEffect(() => {
+    if (!recipe) return;
+    getIsLiked(recipe.id);
+  }, [recipe]);
+
+  return isRecipeError ? (
     <Typography>Error</Typography>
-  ) : isLoading || !recipe ? (
+  ) : isRecipeLoading || !recipe ? (
     <h1>is loading</h1>
   ) : (
     <Container sx={{ my: 2 }}>
       <Grid container spacing={2}>
-        <Grid xs={12} sx={{ display: { xs: "block", md: "none" } }} item>
+        <Grid xs={12} item>
           <MyCard>
-            <Typography sx={{ fontWeight: 700 }} variant="h4" component="h1">
+            <Typography sx={{ fontWeight: 700 }} variant={matches ? "h4" : "h5"} component="h1">
               {recipe.title}
             </Typography>
           </MyCard>
@@ -62,13 +112,14 @@ const Recipe = (props: Props) => {
               justifyContent: "space-between",
             }}
           >
-            <Typography sx={{ display: { xs: "none", md: "block" }, fontWeight: 700 }} variant="h4" component="h1">
-              {recipe.title}
-            </Typography>
             <Box>
               <MyLabel>Ingredients</MyLabel>
-              <Typography sx={{ whiteSpace: "break-spaces" }} variant="h6" component="pre">
-                {recipe.ingredients}
+              <Typography
+                sx={{ whiteSpace: "break-spaces", display: "flex", flexDirection: "column", gap: 1.2 }}
+                variant="h6"
+                component="pre"
+              >
+                {convertToParagraphs(recipe.ingredients)}
               </Typography>
             </Box>
             <Box>
@@ -95,25 +146,30 @@ const Recipe = (props: Props) => {
             </Typography>
           </MyCard>
         </Grid>
-        <Grid xs={12} item>
-          <Dialog fullScreen onClick={() => setSelectedURL(null)} open={!!selectedURL}>
-            <Box sx={{ display: "flex", height: "100%", justifyContent: "center", alignItems: "center" }}>
-              <Image sx={{ maxHeight: "90%", flex: 1, maxWidth: "90%", aspectRatio: "3/2" }} src={selectedURL || ""} />
-            </Box>
-          </Dialog>
-          <Carousel
-            navigation
-            slidesPerView={matches ? 4 : 2}
-            spaceBetween={15}
-            sx={{ width: "100%", slidesPerView: { xs: 2, md: 4 }, aspectRatio: { xs: "8/3", md: "16/3" } }}
-          >
-            {recipe.images.map((image) => (
-              <SwiperSlide key={image.id} onClick={() => setSelectedURL(image.imageUrl)}>
-                <Image sx={{ userSelect: "none", width: "100%", height: "100%", zIndex: 100 }} src={image.imageUrl} />
-              </SwiperSlide>
-            ))}
-          </Carousel>
-        </Grid>
+        {recipe.images.length > 0 && (
+          <Grid xs={12} item>
+            <Dialog fullScreen onClick={() => setSelectedURL(null)} open={!!selectedURL}>
+              <Box sx={{ display: "flex", height: "100%", justifyContent: "center", alignItems: "center" }}>
+                <Image
+                  sx={{ maxHeight: "90%", flex: 1, maxWidth: "90%", aspectRatio: "3/2" }}
+                  src={selectedURL || ""}
+                />
+              </Box>
+            </Dialog>
+            <Carousel
+              navigation
+              slidesPerView={matches ? 4 : 2}
+              spaceBetween={15}
+              sx={{ width: "100%", slidesPerView: { xs: 2, md: 4 }, aspectRatio: { xs: "8/3", md: "16/3" } }}
+            >
+              {recipe.images.map((image) => (
+                <SwiperSlide key={image.id} onClick={() => setSelectedURL(image.imageUrl)}>
+                  <Image sx={{ userSelect: "none", width: "100%", height: "100%", zIndex: 100 }} src={image.imageUrl} />
+                </SwiperSlide>
+              ))}
+            </Carousel>
+          </Grid>
+        )}
         <Grid item xs={12}>
           <MyCard>
             <Stack>
@@ -128,8 +184,12 @@ const Recipe = (props: Props) => {
                 }}
               >
                 <Box sx={{ display: "flex", gap: 1 }}>
-                  <IconButton size={"small"}>
-                    <FavoriteBorder sx={{ fontSize: 30 }} color="error" />
+                  <IconButton onClick={likeController} size={"small"}>
+                    {isLiked ? (
+                      <Favorite sx={{ fontSize: 30 }} color="error" />
+                    ) : (
+                      <FavoriteBorder sx={{ fontSize: 30 }} color="error" />
+                    )}
                   </IconButton>
                   <IconButton size={"small"}>
                     <BookmarkBorder sx={{ fontSize: 30 }} />

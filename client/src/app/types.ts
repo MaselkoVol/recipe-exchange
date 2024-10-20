@@ -97,3 +97,5 @@ export type UserFollowers = {
   }[];
   meta: MetaType;
 };
+
+export type LikeResponse = ({ message: string } | { error: string }) & { liked: boolean };

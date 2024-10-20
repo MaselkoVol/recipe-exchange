@@ -12,6 +12,7 @@ router.get("/current", authCheck, CurrentController.current);
 router.get("/current/recipes", authCheck, CurrentController.getCurrentUserRecipes);
 // get liked recipes of current user
 router.get("/current/liked/recipes", authCheck, LikesController.getUserLikedRecipes);
+router.get("/current/liked/recipes/:recipeId", authCheck, LikesController.isRecipeLiked);
 // get favorite recipes of current user
 router.get("/current/favorite/recipes", authCheck, FavoriteController.getUserFavoriteRecipes);
 

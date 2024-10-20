@@ -94,11 +94,11 @@ const LikesController = {
     try {
       const foundRecipe = await prisma.recipe.findUnique({ where: { id: recipeId } });
       if (!foundRecipe) {
-        return res.status(404).send({ erorr: "Recipe not found" });
+        return res.status(404).send({ erorr: "Recipe not found", liked: false });
       }
       const likedRecipe = await prisma.likedRecipe.findFirst({ where: { AND: [{ userId }, { recipeId }] } });
       if (likedRecipe) {
-        return res.status(203).send({ message: "Post already added to liked" });
+        return res.status(203).send({ message: "Post already added to liked", liked: true });
       }
       await prisma.likedRecipe.create({
         data: {
@@ -106,7 +106,7 @@ const LikesController = {
           recipeId,
         },
       });
-      return res.sendStatus(200);
+      return res.status(200).send({ message: "Post was liked successfully", liked: true });
     } catch (error) {
       console.log(error);
       return internalServerError(res);
@@ -119,16 +119,35 @@ const LikesController = {
     try {
       const foundRecipe = await prisma.recipe.findUnique({ where: { id: recipeId } });
       if (!foundRecipe) {
-        return res.status(404).send({ erorr: "Recipe not found" });
+        return res.status(404).send({ erorr: "Recipe not found", liked: false });
       }
       const likedRecipe = await prisma.likedRecipe.findFirst({ where: { AND: [{ userId }, { recipeId }] } });
       if (!likedRecipe) {
-        return res.status(204).send({ message: "Post is not in liked by user" });
+        return res.status(204).send({ message: "Post is not in liked by user", liked: false });
       }
       await prisma.likedRecipe.deleteMany({
         where: { AND: [{ userId }, { recipeId }] },
       });
-      return res.sendStatus(200);
+      return res.status(200).send({ message: "Post was unliked successfully", liked: false });
+    } catch (error) {
+      console.log(error);
+      return internalServerError(res);
+    }
+  },
+  isRecipeLiked: async (req, res) => {
+    const { recipeId } = req.params;
+    const userId = req.user.id;
+
+    try {
+      const foundRecipe = await prisma.recipe.findUnique({ where: { id: recipeId } });
+      if (!foundRecipe) {
+        return res.status(404).send({ erorr: "Recipe not found", liked: false });
+      }
+      const likedRecipe = await prisma.likedRecipe.findFirst({ where: { AND: [{ userId }, { recipeId }] } });
+      if (likedRecipe) {
+        return res.status(200).send({ message: "Post is liked by user", liked: true });
+      }
+      return res.status(204).send({ message: "Recipe is not liked by user", liked: false });
     } catch (error) {
       console.log(error);
       return internalServerError(res);
