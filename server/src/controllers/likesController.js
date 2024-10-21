@@ -87,7 +87,8 @@ const LikesController = {
       return internalServerError(res);
     }
   },
-  addRecipeToLiked: async (req, res) => {
+  toggleLike: async (req, res) => {
+    return res.status(400).send({ msg: "hello", liked: false });
     const { recipeId } = req.params;
     const userId = req.user.id;
 
@@ -98,7 +99,10 @@ const LikesController = {
       }
       const likedRecipe = await prisma.likedRecipe.findFirst({ where: { AND: [{ userId }, { recipeId }] } });
       if (likedRecipe) {
-        return res.status(203).send({ message: "Post already added to liked", liked: true });
+        await prisma.likedRecipe.deleteMany({
+          where: { AND: [{ userId }, { recipeId }] },
+        });
+        return res.status(204).send({ message: "Post was unliked successfully", liked: false });
       }
       await prisma.likedRecipe.create({
         data: {
@@ -107,28 +111,6 @@ const LikesController = {
         },
       });
       return res.status(200).send({ message: "Post was liked successfully", liked: true });
-    } catch (error) {
-      console.log(error);
-      return internalServerError(res);
-    }
-  },
-  removeRecipeFromLiked: async (req, res) => {
-    const { recipeId } = req.params;
-    const userId = req.user.id;
-
-    try {
-      const foundRecipe = await prisma.recipe.findUnique({ where: { id: recipeId } });
-      if (!foundRecipe) {
-        return res.status(404).send({ erorr: "Recipe not found", liked: false });
-      }
-      const likedRecipe = await prisma.likedRecipe.findFirst({ where: { AND: [{ userId }, { recipeId }] } });
-      if (!likedRecipe) {
-        return res.status(204).send({ message: "Post is not in liked by user", liked: false });
-      }
-      await prisma.likedRecipe.deleteMany({
-        where: { AND: [{ userId }, { recipeId }] },
-      });
-      return res.status(200).send({ message: "Post was unliked successfully", liked: false });
     } catch (error) {
       console.log(error);
       return internalServerError(res);

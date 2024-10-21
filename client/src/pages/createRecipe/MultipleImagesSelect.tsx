@@ -23,6 +23,7 @@ import { type FileWithDataURL } from "../../utils/functions/fileToDataURL";
 import AnimatedAlert from "../../components/UI/AnimatedAlert";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
+import ImageFullscreen from "../../components/UI/ImageFullscreen";
 
 type Props = {
   selectedFiles: File[] | null;
@@ -135,11 +136,7 @@ const MultipleImagesSelect = ({ maxImages, inputText, allowedTypes, selectedFile
               />
             </Box>
           ))}
-          <Dialog fullScreen onClick={() => setSelectedURL(null)} open={!!selectedURL}>
-            <Box sx={{ display: "flex", height: "100%", justifyContent: "center", alignItems: "center" }}>
-              <Image sx={{ maxHeight: "90%", flex: 1, maxWidth: "90%", aspectRatio: "3/2" }} src={selectedURL || ""} />
-            </Box>
-          </Dialog>
+          <ImageFullscreen selectedURL={selectedURL} setSelectedURL={setSelectedURL} />
         </Box>
       )}
       <InputFile multiple onChange={handleFilesSelect} accept={allowedTypes || ""}>

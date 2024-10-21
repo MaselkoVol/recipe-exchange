@@ -2,13 +2,22 @@ import { SxProps, Typography, TypographyProps } from "@mui/material";
 import React from "react";
 import { useColors } from "../../hooks/useColors";
 
-type Props = TypographyProps;
+type Props = TypographyProps & {
+  mb?: number;
+  textAlign?: "left" | "center" | "right";
+};
 
-const MyLabel = ({ children, sx }: Props) => {
+const MyLabel = ({ children, sx, mb = 0.5, textAlign = "left" }: Props) => {
   const colors = useColors();
   return (
     <Typography
-      sx={{ mb: 0.5, fontWeight: 700, color: colors.palette.primary.main, ...sx }}
+      sx={{
+        textAlign: textAlign,
+        mb: mb,
+        fontWeight: 700,
+        color: colors.palette.primary.main,
+        ...sx,
+      }}
       variant="subtitle1"
       component="h2"
     >

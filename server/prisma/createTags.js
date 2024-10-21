@@ -1,27 +1,13 @@
 const prisma = require("../src/prismaClient");
 
 const tagCategories = [
+  [{ name: "Type of Food", id: "" }, ["Breakfast", "Lunch", "Dinner", "Snack", "Dessert", "Appetizer", "Side Dish"]],
   [
-    { name: "Тип їжі", id: "" },
-    ["Сніданок", "Обід", "Вечеря", "Перекус", "Десерт", "Закуска", "Гарнір"],
+    { name: "Dietary Preferences", id: "" },
+    ["Vegetarian", "Vegan", "Gluten-Free", "Dairy-Free", "Low-Carb", "Paleo", "Keto"],
   ],
-  [
-    { name: "Дієтичні уподобання", id: "" },
-    [
-      "Вегетаріанська",
-      "Веганська",
-      "Без глютену",
-      "Без молочних продуктів",
-      "Низьковуглеводна",
-      "Палео",
-      "Кето",
-    ],
-  ],
-  [
-    { name: "Методи приготування", id: "" },
-    ["Запікання", "Гриль", "Смаження", "Варіння на пару", "Варіння"],
-  ],
-  [{ name: "Подія", id: "" }, ["Свято", "Вечірка", "Особлива подія"]],
+  [{ name: "Cooking Methods", id: "" }, ["Baking", "Grilling", "Frying", "Steaming", "Boiling"]],
+  [{ name: "Occasion", id: "" }, ["Holiday", "Party", "Special Occasion"]],
 ];
 
 async function createTagCategories() {

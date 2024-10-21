@@ -25,40 +25,33 @@ import Carousel from "../../components/UI/carousel/Carousel";
 import { SwiperSlide } from "swiper/react";
 import MyLabel from "../../components/UI/MyLabel";
 import { convertToParagraphs } from "../../utils/functions/convertToParagraphs";
-import {
-  useAddRecipeToLikedMutation,
-  useLazyIsRecipeLikedQuery,
-  useRemoveRecipeFromLikedMutation,
-} from "../../app/services/likesApi";
+import { useLazyIsRecipeLikedQuery, useToggleLikeMutation } from "../../app/services/likesApi";
+import ImageFullscreen from "../../components/UI/ImageFullscreen";
 
 type Props = {};
 
 const Recipe = (props: Props) => {
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up("md"));
+  // open additional images in fullscreen
   const [selectedURL, setSelectedURL] = useState<string | null>(null);
-  const colors = useColors();
 
   const params = useParams();
   const { data: recipe, isLoading: isRecipeLoading, isError: isRecipeError } = useGetRecipeQuery(params.id || "");
-  const [likeRecipe, { isError: likeError }] = useAddRecipeToLikedMutation();
-  const [unlikeRecipe, { isError: unlikeError }] = useRemoveRecipeFromLikedMutation();
+  const [toggleLike, { isError: toggleLikeError }] = useToggleLikeMutation();
   const [getIsLiked, { data: isLikedData, isError: isLikedError }] = useLazyIsRecipeLikedQuery();
   const [isLiked, setIsLiked] = useState(false);
 
   const likeController = () => {
     if (!recipe?.id) return;
     setIsLiked(!isLiked);
-    if (!isLiked) {
-      likeRecipe(recipe.id);
-    } else {
-      unlikeRecipe(recipe.id);
-    }
+    toggleLike(recipe.id);
   };
 
   useEffect(() => {
-    if (!isLikedData) return;
-    if (isLikedData.liked) {
+    console.log("first");
+    if (isLikedData?.liked) {
+      console.log("first");
       setIsLiked(true);
     } else {
       setIsLiked(false);
@@ -70,14 +63,13 @@ const Recipe = (props: Props) => {
   }, [isLikedError]);
 
   useEffect(() => {
-    if (!likeError) return;
-    setIsLiked(false);
-  }, [likeError]);
-
-  useEffect(() => {
-    if (!unlikeError) return;
-    setIsLiked(true);
-  }, [unlikeError]);
+    if (recipe?.id && toggleLikeError) {
+      const timeoutId = setTimeout(() => {
+        getIsLiked(recipe.id);
+      }, 300); // Delay by 300ms or as needed
+      return () => clearTimeout(timeoutId); // Cleanup
+    }
+  }, [toggleLikeError, recipe]);
 
   useEffect(() => {
     if (!recipe) return;
@@ -100,7 +92,10 @@ const Recipe = (props: Props) => {
         </Grid>
         <Grid xs={12} md={6} item>
           {recipe.mainImageUrl && (
-            <Image sx={{ aspectRatio: { xs: "4/3", md: "initial" }, height: "100%" }} src={recipe.mainImageUrl || ""} />
+            <Image
+              sx={{ aspectRatio: { xs: "4/3", md: "initial" }, paddingBottom: "60%", height: "100%" }}
+              src={recipe.mainImageUrl || ""}
+            />
           )}
         </Grid>
         <Grid xs={12} md={6} item>
@@ -139,8 +134,8 @@ const Recipe = (props: Props) => {
             </Box>
           </MyCard>
         </Grid>
-        <Grid xs={12} item>
-          <MyCard>
+        <Grid xs={12} sx={{ alignSelf: "stretch", gridArea: "biggest" }} item>
+          <MyCard sx={{ minHeight: "100%" }}>
             <Typography sx={{ maxWidth: 600, whiteSpace: "break-spaces" }} variant="h6" component="pre">
               {recipe.text}
             </Typography>
@@ -148,14 +143,7 @@ const Recipe = (props: Props) => {
         </Grid>
         {recipe.images.length > 0 && (
           <Grid xs={12} item>
-            <Dialog fullScreen onClick={() => setSelectedURL(null)} open={!!selectedURL}>
-              <Box sx={{ display: "flex", height: "100%", justifyContent: "center", alignItems: "center" }}>
-                <Image
-                  sx={{ maxHeight: "90%", flex: 1, maxWidth: "90%", aspectRatio: "3/2" }}
-                  src={selectedURL || ""}
-                />
-              </Box>
-            </Dialog>
+            <ImageFullscreen selectedURL={selectedURL} setSelectedURL={setSelectedURL} />
             <Carousel
               navigation
               slidesPerView={matches ? 4 : 2}
@@ -163,7 +151,12 @@ const Recipe = (props: Props) => {
               sx={{ width: "100%", slidesPerView: { xs: 2, md: 4 }, aspectRatio: { xs: "8/3", md: "16/3" } }}
             >
               {recipe.images.map((image) => (
-                <SwiperSlide key={image.id} onClick={() => setSelectedURL(image.imageUrl)}>
+                <SwiperSlide
+                  key={image.id}
+                  onClick={() => {
+                    setSelectedURL(image.imageUrl);
+                  }}
+                >
                   <Image sx={{ userSelect: "none", width: "100%", height: "100%", zIndex: 100 }} src={image.imageUrl} />
                 </SwiperSlide>
               ))}
@@ -172,35 +165,33 @@ const Recipe = (props: Props) => {
         )}
         <Grid item xs={12}>
           <MyCard>
-            <Stack>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  width: { xs: "100%", md: "auto" },
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                  columnGap: 4,
-                }}
-              >
-                <Box sx={{ display: "flex", gap: 1 }}>
-                  <IconButton onClick={likeController} size={"small"}>
-                    {isLiked ? (
-                      <Favorite sx={{ fontSize: 30 }} color="error" />
-                    ) : (
-                      <FavoriteBorder sx={{ fontSize: 30 }} color="error" />
-                    )}
-                  </IconButton>
-                  <IconButton size={"small"}>
-                    <BookmarkBorder sx={{ fontSize: 30 }} />
-                  </IconButton>
-                </Box>
-                created: {formatDate(recipe.createdAt)}
-                <ClientLink sx={{ marginLeft: "auto" }} to={`users/${recipe.author.id}`}>
-                  <UserInfo reversed avatarSize={40} hideEmail user={recipe.author} />
-                </ClientLink>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                width: { xs: "100%", md: "auto" },
+                alignItems: "center",
+                flexWrap: "wrap",
+                columnGap: 4,
+              }}
+            >
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <IconButton onClick={likeController} size={"small"}>
+                  {isLiked ? (
+                    <Favorite sx={{ fontSize: 30 }} color="error" />
+                  ) : (
+                    <FavoriteBorder sx={{ fontSize: 30 }} color="error" />
+                  )}
+                </IconButton>
+                <IconButton size={"small"}>
+                  <BookmarkBorder sx={{ fontSize: 30 }} />
+                </IconButton>
               </Box>
-            </Stack>
+              <Box>created: {formatDate(recipe.createdAt)}</Box>
+              <ClientLink sx={{ ml: "auto" }} to={`users/${recipe.author.id}`}>
+                <UserInfo reversed avatarSize={40} hideEmail user={recipe.author} />
+              </ClientLink>
+            </Box>
           </MyCard>
         </Grid>
       </Grid>

@@ -54,7 +54,7 @@ const UserControl = ({ user }: Props) => {
         width: "100%",
       }}
     >
-      <UserInfo user={user} />
+      <UserInfo avatarSize={40} user={user} />
 
       <Box
         sx={{

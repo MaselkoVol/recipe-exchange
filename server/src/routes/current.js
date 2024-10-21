@@ -25,14 +25,12 @@ router.put("/current", authCheck, upload.single("avatar"), CurrentController.upd
 // follow user, ony for authorized useres
 router.post("/current/following/:followingId", authCheck, FollowsController.follow);
 // add post to liked by user, ony for authorized useres
-router.post("/current/liked/recipes/:recipeId", authCheck, LikesController.addRecipeToLiked);
+router.post("/current/liked/recipes/:recipeId", authCheck, LikesController.toggleLike);
 // add post to favorite, ony for authorized useres
 router.post("/current/favorite/recipes/:recipeId", authCheck, FavoriteController.addRecipeToFavorite);
 
 // unfollow user, ony for authorized useres
 router.delete("/current/following/:followingId", authCheck, FollowsController.unfollow);
-// unlike recipe, ony for authorized useres
-router.delete("/current/liked/recipes/:recipeId", authCheck, LikesController.removeRecipeFromLiked);
 // unlike recipe, ony for authorized useres
 router.delete("/current/favorite/recipes/:recipeId", authCheck, FavoriteController.removeRecipeFromFavorite);
 // delete current user
