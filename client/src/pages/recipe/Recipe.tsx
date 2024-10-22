@@ -11,7 +11,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useGetRecipeQuery } from "../../app/services/recipeApi";
 import Image from "../../components/UI/Image";
@@ -27,10 +27,18 @@ import MyLabel from "../../components/UI/MyLabel";
 import { convertToParagraphs } from "../../utils/functions/convertToParagraphs";
 import { useLazyIsRecipeLikedQuery, useToggleLikeMutation } from "../../app/services/likesApi";
 import ImageFullscreen from "../../components/UI/ImageFullscreen";
+import { debounder } from "../../utils/functions/debouncer";
+import { useDebounce } from "../../hooks/useDebounce";
+import LoadingPage from "../loadingPage/LoadingPage";
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/store";
+import UnregisteredDialog from "../../components/UnregisteredDialog";
 
 type Props = {};
 
 const Recipe = (props: Props) => {
+  const isAuth = useSelector((selector: RootState) => selector.auth.status);
+  const [loginOpen, setLoginOpen] = useState(false);
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up("md"));
   // open additional images in fullscreen
@@ -39,37 +47,38 @@ const Recipe = (props: Props) => {
   const params = useParams();
   const { data: recipe, isLoading: isRecipeLoading, isError: isRecipeError } = useGetRecipeQuery(params.id || "");
   const [toggleLike, { isError: toggleLikeError }] = useToggleLikeMutation();
-  const [getIsLiked, { data: isLikedData, isError: isLikedError }] = useLazyIsRecipeLikedQuery();
+  const [getIsLiked, { data: isLikedData, isError: isLikedError, status: isLikedStatus }] = useLazyIsRecipeLikedQuery();
   const [isLiked, setIsLiked] = useState(false);
 
-  const likeController = () => {
-    if (!recipe?.id) return;
-    setIsLiked(!isLiked);
-    toggleLike(recipe.id);
-  };
+  const triggerLike = useDebounce({
+    debounce: () => {
+      if (!recipe?.id) return;
+      toggleLike(recipe.id);
+    },
+    instantCallback: () => setIsLiked(!isLiked),
+    delay: 300,
+  });
 
   useEffect(() => {
-    console.log("first");
+    if (isLikedStatus !== "fulfilled") return;
     if (isLikedData?.liked) {
-      console.log("first");
       setIsLiked(true);
     } else {
       setIsLiked(false);
     }
-  }, [isLikedData]);
+  }, [isLikedStatus]);
 
   useEffect(() => {
     setIsLiked(false);
   }, [isLikedError]);
 
   useEffect(() => {
-    if (recipe?.id && toggleLikeError) {
-      const timeoutId = setTimeout(() => {
-        getIsLiked(recipe.id);
-      }, 300); // Delay by 300ms or as needed
-      return () => clearTimeout(timeoutId); // Cleanup
-    }
-  }, [toggleLikeError, recipe]);
+    if (!recipe?.id || !toggleLikeError) return;
+    const timeoutId = setTimeout(() => {
+      getIsLiked(recipe.id);
+    }, 300); // Delay by 300ms	 or as needed
+    return () => clearTimeout(timeoutId); // Cleanup
+  }, [toggleLikeError]);
 
   useEffect(() => {
     if (!recipe) return;
@@ -79,7 +88,7 @@ const Recipe = (props: Props) => {
   return isRecipeError ? (
     <Typography>Error</Typography>
   ) : isRecipeLoading || !recipe ? (
-    <h1>is loading</h1>
+    <LoadingPage />
   ) : (
     <Container sx={{ my: 2 }}>
       <Grid container spacing={2}>
@@ -176,7 +185,7 @@ const Recipe = (props: Props) => {
               }}
             >
               <Box sx={{ display: "flex", gap: 1 }}>
-                <IconButton onClick={likeController} size={"small"}>
+                <IconButton onClick={() => (isAuth ? triggerLike() : setLoginOpen(true))} size={"small"}>
                   {isLiked ? (
                     <Favorite sx={{ fontSize: 30 }} color="error" />
                   ) : (
@@ -195,6 +204,8 @@ const Recipe = (props: Props) => {
           </MyCard>
         </Grid>
       </Grid>
+
+      <UnregisteredDialog open={loginOpen} setIsOpen={setLoginOpen} />
     </Container>
   );
 };

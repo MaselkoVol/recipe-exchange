@@ -88,7 +88,7 @@ const LikesController = {
     }
   },
   toggleLike: async (req, res) => {
-    return res.status(400).send({ msg: "hello", liked: false });
+    // return res.sendStatus(400);
     const { recipeId } = req.params;
     const userId = req.user.id;
 
