@@ -81,7 +81,6 @@ const AuthController = {
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
       });
-      console.log(res);
       return res.json({ accessToken });
     } catch (error) {
       console.error(error);

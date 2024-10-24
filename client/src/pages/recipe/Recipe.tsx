@@ -19,7 +19,15 @@ import UserInfo from "../../components/UserInfo";
 import { useColors } from "../../hooks/useColors";
 import ClientLink from "../../components/UI/ClientLink";
 import { formatDate } from "../../utils/functions/formatDate";
-import { BookmarkBorder, Favorite, FavoriteBorder, Save, Visibility, VisibilityRounded } from "@mui/icons-material";
+import {
+  Bookmark,
+  BookmarkBorder,
+  Favorite,
+  FavoriteBorder,
+  Save,
+  Visibility,
+  VisibilityRounded,
+} from "@mui/icons-material";
 import MyCard from "../../components/UI/MyCard";
 import Carousel from "../../components/UI/carousel/Carousel";
 import { SwiperSlide } from "swiper/react";
@@ -33,6 +41,8 @@ import LoadingPage from "../loadingPage/LoadingPage";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import UnregisteredDialog from "../../components/UnregisteredDialog";
+import { useOptimisticButton } from "../../hooks/useOptimisticButton";
+import { useLazyIsAddedToFavoriteQuery, useToggleFavoriteMutation } from "../../app/services/favoriteApi";
 
 type Props = {};
 
@@ -46,44 +56,23 @@ const Recipe = (props: Props) => {
 
   const params = useParams();
   const { data: recipe, isLoading: isRecipeLoading, isError: isRecipeError } = useGetRecipeQuery(params.id || "");
-  const [toggleLike, { isError: toggleLikeError }] = useToggleLikeMutation();
-  const [getIsLiked, { data: isLikedData, isError: isLikedError, status: isLikedStatus }] = useLazyIsRecipeLikedQuery();
+
   const [isLiked, setIsLiked] = useState(false);
-
-  const triggerLike = useDebounce({
-    debounce: () => {
-      if (!recipe?.id) return;
-      toggleLike(recipe.id);
-    },
-    instantCallback: () => setIsLiked(!isLiked),
-    delay: 300,
+  const triggerLike = useOptimisticButton({
+    btnValue: isLiked,
+    setBtnValue: setIsLiked,
+    btnDependencies: recipe?.id,
+    useLazyIsBtnActiveQuery: useLazyIsRecipeLikedQuery,
+    useToggleBtnMutation: useToggleLikeMutation,
   });
-
-  useEffect(() => {
-    if (isLikedStatus !== "fulfilled") return;
-    if (isLikedData?.liked) {
-      setIsLiked(true);
-    } else {
-      setIsLiked(false);
-    }
-  }, [isLikedStatus]);
-
-  useEffect(() => {
-    setIsLiked(false);
-  }, [isLikedError]);
-
-  useEffect(() => {
-    if (!recipe?.id || !toggleLikeError) return;
-    const timeoutId = setTimeout(() => {
-      getIsLiked(recipe.id);
-    }, 300); // Delay by 300ms	 or as needed
-    return () => clearTimeout(timeoutId); // Cleanup
-  }, [toggleLikeError]);
-
-  useEffect(() => {
-    if (!recipe) return;
-    getIsLiked(recipe.id);
-  }, [recipe]);
+  const [isInFavorites, setIsInFavorites] = useState(false);
+  const triggerFavorite = useOptimisticButton({
+    btnValue: isInFavorites,
+    setBtnValue: setIsInFavorites,
+    btnDependencies: recipe?.id,
+    useLazyIsBtnActiveQuery: useLazyIsAddedToFavoriteQuery,
+    useToggleBtnMutation: useToggleFavoriteMutation,
+  });
 
   return isRecipeError ? (
     <Typography>Error</Typography>
@@ -192,8 +181,8 @@ const Recipe = (props: Props) => {
                     <FavoriteBorder sx={{ fontSize: 30 }} color="error" />
                   )}
                 </IconButton>
-                <IconButton size={"small"}>
-                  <BookmarkBorder sx={{ fontSize: 30 }} />
+                <IconButton onClick={() => (isAuth ? triggerFavorite() : setLoginOpen(true))} size={"small"}>
+                  {isInFavorites ? <Bookmark sx={{ fontSize: 30 }} /> : <BookmarkBorder sx={{ fontSize: 30 }} />}
                 </IconButton>
               </Box>
               <Box>created: {formatDate(recipe.createdAt)}</Box>

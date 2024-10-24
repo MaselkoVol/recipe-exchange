@@ -7,7 +7,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import PasswordInput from "../../components/UI/input/PasswordInput";
 import FormArea from "../../components/FormArea";
 import { responseErrorCheck } from "../../utils/functions/responseErrorCheck";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { setCredentials } from "./authSlice";
@@ -24,9 +24,9 @@ type FormFields = {
 type Props = {};
 
 const Login = (props: Props) => {
-  const theme = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const [login, { isLoading, error }] = useLoginMutation();
 
   const {
@@ -44,7 +44,7 @@ const Login = (props: Props) => {
     const result = await login(data);
     if (!result.error) {
       dispatch(setCredentials({ token: result.data.accessToken, status: true }));
-      navigate("/current/recipes");
+      navigate(-1);
     }
   };
 

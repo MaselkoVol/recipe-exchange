@@ -15,6 +15,7 @@ router.get("/current/liked/recipes", authCheck, LikesController.getUserLikedReci
 router.get("/current/liked/recipes/:recipeId", authCheck, LikesController.isRecipeLiked);
 // get favorite recipes of current user
 router.get("/current/favorite/recipes", authCheck, FavoriteController.getUserFavoriteRecipes);
+router.get("/current/favorite/recipes/:recipeId", authCheck, FavoriteController.isInFavorite);
 
 router.get("/current/following", authCheck, FollowsController.getCurrentUserFollowing);
 router.get("/current/followers", authCheck, FollowsController.getCurrentUserFollowers);
@@ -27,13 +28,11 @@ router.post("/current/following/:followingId", authCheck, FollowsController.foll
 // add post to liked by user, ony for authorized useres
 router.post("/current/liked/recipes/:recipeId", authCheck, LikesController.toggleLike);
 // add post to favorite, ony for authorized useres
-router.post("/current/favorite/recipes/:recipeId", authCheck, FavoriteController.addRecipeToFavorite);
+router.post("/current/favorite/recipes/:recipeId", authCheck, FavoriteController.toggleFavorite);
 
 // unfollow user, ony for authorized useres
 router.delete("/current/following/:followingId", authCheck, FollowsController.unfollow);
 // unlike recipe, ony for authorized useres
-router.delete("/current/favorite/recipes/:recipeId", authCheck, FavoriteController.removeRecipeFromFavorite);
-// delete current user
 router.delete("/current", authCheck, CurrentController.deleteUser);
 
 module.exports = router;

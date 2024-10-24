@@ -87,7 +87,7 @@ const FavoriteController = {
       return internalServerError(res);
     }
   },
-  addRecipeToFavorite: async (req, res) => {
+  toggleFavorite: async (req, res) => {
     const { recipeId } = req.params;
     const userId = req.user.id;
 
@@ -98,7 +98,10 @@ const FavoriteController = {
       }
       const favorite = await prisma.favoriteRecipe.findFirst({ where: { AND: [{ userId }, { recipeId }] } });
       if (favorite) {
-        return res.status(203).send({ error: "Post already added to favorite" });
+        await prisma.favoriteRecipe.deleteMany({
+          where: { AND: [{ userId }, { recipeId }] },
+        });
+        return res.status(200).send({ message: "Post was deleted from favorites successfully", active: false });
       }
       await prisma.favoriteRecipe.create({
         data: {
@@ -106,29 +109,26 @@ const FavoriteController = {
           recipeId,
         },
       });
-      return res.sendStatus(200);
+      return res.status(200).send({ message: "Post was added to favorites successfully", active: true });
     } catch (error) {
       console.log(error);
       return internalServerError(res);
     }
   },
-  removeRecipeFromFavorite: async (req, res) => {
+  isInFavorite: async (req, res) => {
     const { recipeId } = req.params;
     const userId = req.user.id;
 
     try {
       const foundRecipe = await prisma.recipe.findUnique({ where: { id: recipeId } });
       if (!foundRecipe) {
-        return res.status(404).send({ erorr: "Recipe not found" });
+        return res.status(404).send({ erorr: "Recipe not found", active: false });
       }
-      const favoriteRecipe = await prisma.favoriteRecipe.findFirst({ where: { AND: [{ userId }, { recipeId }] } });
-      if (!favoriteRecipe) {
-        return res.status(204).send({ message: "Post is not in user's favorite" });
+      const likedRecipe = await prisma.favoriteRecipe.findFirst({ where: { AND: [{ userId }, { recipeId }] } });
+      if (likedRecipe) {
+        return res.status(200).send({ message: "Post is added to favorites", active: true });
       }
-      await prisma.favoriteRecipe.deleteMany({
-        where: { AND: [{ userId }, { recipeId }] },
-      });
-      return res.sendStatus(200);
+      return res.status(204).send({ message: "Post is not added to from favorites", active: false });
     } catch (error) {
       console.log(error);
       return internalServerError(res);
