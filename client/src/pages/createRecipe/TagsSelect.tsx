@@ -11,9 +11,10 @@ type Props = {
   sx?: SxProps;
   buttonSx?: SxProps;
   setSelectedTags: React.Dispatch<React.SetStateAction<Tag[]>>;
+  variant?: "button" | "accordion";
 };
 
-const TagsSelect = ({ sx, buttonSx, tagCategories, selectedTags, setSelectedTags }: Props) => {
+const TagsSelect = ({ sx, buttonSx, tagCategories, selectedTags, setSelectedTags, variant = "button" }: Props) => {
   const [isTagsMenuOpen, setIsTagsMenuOpen] = useState(false);
 
   const handleTagSelect = (tag: Tag) => {
@@ -48,10 +49,10 @@ const TagsSelect = ({ sx, buttonSx, tagCategories, selectedTags, setSelectedTags
     return resObjArray;
   }, [tagCategories, selectedTags]);
 
-  return (
+  return variant === "button" ? (
     <Box sx={sx}>
       <MyButton
-        sx={{ width: "100%", ...sx }}
+        sx={{ width: "100%", ...buttonSx }}
         variant="outlined"
         id="basic-button"
         aria-controls={isTagsMenuOpen ? "basic-menu" : undefined}
@@ -71,7 +72,7 @@ const TagsSelect = ({ sx, buttonSx, tagCategories, selectedTags, setSelectedTags
         <Box sx={{ overflow: "hidden" }}>
           <Box sx={{ mt: 1 }}>
             {tagCategories && accordionElemets ? (
-              <AccordionList linked elements={accordionElemets} />
+              <AccordionList sx={sx} linked elements={accordionElemets} />
             ) : (
               <Stack spacing={0.5}>
                 <Skeleton variant="rounded" animation="wave" sx={{ height: 48 }} />
@@ -84,6 +85,15 @@ const TagsSelect = ({ sx, buttonSx, tagCategories, selectedTags, setSelectedTags
         </Box>
       </Box>
     </Box>
+  ) : tagCategories && accordionElemets ? (
+    <AccordionList sx={sx} linked elements={accordionElemets} />
+  ) : (
+    <Stack spacing={0.5}>
+      <Skeleton variant="rounded" animation="wave" sx={{ height: 48 }} />
+      <Skeleton variant="rounded" animation="wave" sx={{ height: 48 }} />
+      <Skeleton variant="rounded" animation="wave" sx={{ height: 48 }} />
+      <Skeleton variant="rounded" animation="wave" sx={{ height: 48 }} />
+    </Stack>
   );
 };
 

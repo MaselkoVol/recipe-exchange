@@ -1,4 +1,4 @@
-import { Recipe } from "../types";
+import { MetaType, Recipe, RecipeShortInfo } from "../types";
 import { api } from "./api";
 
 export const recipeApi = api.injectEndpoints({
@@ -15,7 +15,30 @@ export const recipeApi = api.injectEndpoints({
         url: `/recipes/${id}`,
       }),
     }),
+    getAllRecipes: builder.query<
+      { data: RecipeShortInfo[]; meta: MetaType },
+      {
+        page: string;
+        limit: string;
+        search: string;
+        searchBy: string;
+        sort: string;
+        sortOrder: string;
+        tags: string;
+      }
+    >({
+      query: (params) => ({
+        url: `/recipes`,
+        params: params,
+      }),
+    }),
   }),
 });
-export const { createRecipe, getRecipe } = recipeApi.endpoints;
-export const { useCreateRecipeMutation, useGetRecipeQuery, useLazyGetRecipeQuery } = recipeApi;
+export const { createRecipe, getRecipe, getAllRecipes } = recipeApi.endpoints;
+export const {
+  useCreateRecipeMutation,
+  useGetRecipeQuery,
+  useLazyGetRecipeQuery,
+  useLazyGetAllRecipesQuery,
+  useGetAllRecipesQuery,
+} = recipeApi;

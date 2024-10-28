@@ -29,7 +29,7 @@ import {
   VisibilityRounded,
 } from "@mui/icons-material";
 import MyCard from "../../components/UI/MyCard";
-import Carousel from "../../components/UI/carousel/Carousel";
+import Carousel from "../../components/UI/Carousel";
 import { SwiperSlide } from "swiper/react";
 import MyLabel from "../../components/UI/MyLabel";
 import { convertToParagraphs } from "../../utils/functions/convertToParagraphs";
@@ -43,11 +43,15 @@ import { RootState } from "../../app/store";
 import UnregisteredDialog from "../../components/UnregisteredDialog";
 import { useOptimisticButton } from "../../hooks/useOptimisticButton";
 import { useLazyIsAddedToFavoriteQuery, useToggleFavoriteMutation } from "../../app/services/favoriteApi";
+import { useAddViewMutation } from "../../app/services/viewsApi";
+import SelectedTags from "../../components/SelectedTags";
+import { Navigation } from "swiper/modules";
 
 type Props = {};
 
 const Recipe = (props: Props) => {
   const isAuth = useSelector((selector: RootState) => selector.auth.status);
+
   const [loginOpen, setLoginOpen] = useState(false);
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up("md"));
@@ -56,6 +60,14 @@ const Recipe = (props: Props) => {
 
   const params = useParams();
   const { data: recipe, isLoading: isRecipeLoading, isError: isRecipeError } = useGetRecipeQuery(params.id || "");
+
+  // increment view count, works only once for 1 user
+  const [addView] = useAddViewMutation();
+  useEffect(() => {
+    if (recipe && isAuth) {
+      addView(recipe.id);
+    }
+  }, [recipe, isAuth]);
 
   const [isLiked, setIsLiked] = useState(false);
   const triggerLike = useOptimisticButton({
@@ -117,18 +129,7 @@ const Recipe = (props: Props) => {
             </Box>
             <Box>
               <MyLabel>Tags</MyLabel>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  position: "relative",
-                  gap: 1,
-                }}
-              >
-                {recipe.tags &&
-                  recipe.tags[0] &&
-                  recipe.tags.map((tag) => <Chip color={"primary"} label={tag.name} key={tag.id} />)}
-              </Box>
+              <SelectedTags selectedTags={recipe.tags} color="primary" />
             </Box>
           </MyCard>
         </Grid>
@@ -146,7 +147,8 @@ const Recipe = (props: Props) => {
               navigation
               slidesPerView={matches ? 4 : 2}
               spaceBetween={15}
-              sx={{ width: "100%", slidesPerView: { xs: 2, md: 4 }, aspectRatio: { xs: "8/3", md: "16/3" } }}
+              sx={{ width: "100%", aspectRatio: { xs: "8/3", md: "16/3" } }}
+              modules={[Navigation]}
             >
               {recipe.images.map((image) => (
                 <SwiperSlide
@@ -162,15 +164,14 @@ const Recipe = (props: Props) => {
           </Grid>
         )}
         <Grid item xs={12}>
-          <MyCard>
-            <Box
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+            <MyCard
               sx={{
-                display: "flex",
+                flexDirection: "row",
                 justifyContent: "space-between",
-                width: { xs: "100%", md: "auto" },
+                gap: 1,
+                flexGrow: 100,
                 alignItems: "center",
-                flexWrap: "wrap",
-                columnGap: 4,
               }}
             >
               <Box sx={{ display: "flex", gap: 1 }}>
@@ -186,11 +187,15 @@ const Recipe = (props: Props) => {
                 </IconButton>
               </Box>
               <Box>created: {formatDate(recipe.createdAt)}</Box>
-              <ClientLink sx={{ ml: "auto" }} to={`users/${recipe.author.id}`}>
-                <UserInfo reversed avatarSize={40} hideEmail user={recipe.author} />
-              </ClientLink>
-            </Box>
-          </MyCard>
+            </MyCard>
+            <MyCard sx={{ flexGrow: 1 }}>
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <ClientLink sx={{ ml: "auto" }} to={`users/${recipe.author.id}`}>
+                  <UserInfo reversed avatarSize={40} hideEmail user={recipe.author} />
+                </ClientLink>
+              </Box>
+            </MyCard>
+          </Box>
         </Grid>
       </Grid>
 

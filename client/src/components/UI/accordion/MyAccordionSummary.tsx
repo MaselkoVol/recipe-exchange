@@ -11,6 +11,7 @@ const CustomSummary = styled(AccordionSummary)(() => {
     borderBottom: `1px solid ${colors.grey}`,
     borderRadius: 4,
     marginBottom: -1,
+    cursor: "pointer",
   };
 });
 

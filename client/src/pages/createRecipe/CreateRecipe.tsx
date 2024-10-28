@@ -18,6 +18,8 @@ import LoadingButton from "../../components/UI/LoadingButton";
 import { responseErrorCheck } from "../../utils/functions/responseErrorCheck";
 import { useDispatch } from "react-redux";
 import { addToSnackBar } from "../../features/snackbar/snackbarSlice";
+import MyLabel from "../../components/UI/MyLabel";
+import SelectedTags from "../../components/SelectedTags";
 
 type Props = {};
 
@@ -168,7 +170,7 @@ const CreateRecipe = (props: Props) => {
             })}
             spacing={0.5}
           >
-            <Typography>Main Image</Typography>
+            <MyLabel>Main Image</MyLabel>
             <OneFileSelect
               selectedFile={selectedMainFile}
               allowedTypes="image/jpeg, image/png, image/webp, image/jpg"
@@ -181,12 +183,12 @@ const CreateRecipe = (props: Props) => {
           </Stack>
 
           <Stack {...register("images")} spacing={0.5}>
-            <Typography>
+            <MyLabel>
               Additional Images
               <Typography sx={{ ml: 1, fontWeight: 700 }} component={"span"}>
                 {selectedAddFiles?.length || 0} / 10
               </Typography>
-            </Typography>
+            </MyLabel>
             <MultipleImagesSelect
               maxImages={10}
               allowedTypes="image/jpeg, image/png, image/webp, image/jpg"
@@ -202,10 +204,7 @@ const CreateRecipe = (props: Props) => {
             })}
             spacing={1}
           >
-            <Typography>Tags</Typography>
-            <AnimatedAlert sx={{ mb: 1 }} severity="error" open={responseErrorCheck(tagError)}>
-              {responseErrorCheck(tagError) && tagError.data.error}
-            </AnimatedAlert>
+            <MyLabel>Tags</MyLabel>
             <Box
               sx={{
                 display: "flex",
@@ -230,20 +229,7 @@ const CreateRecipe = (props: Props) => {
                 />
               </Box>
             </Box>
-            <Stack sx={{ flexWrap: "wrap", gap: 1, alignItems: "center" }} direction="row">
-              <Typography sx={{ color: colors.palette.primary.main }} variant="subtitle1">
-                Selected tags:
-              </Typography>
-              {selectedTags.length
-                ? selectedTags.map((tag) => (
-                    <Chip
-                      key={tag.id}
-                      label={tag.name}
-                      onDelete={() => setSelectedTags(selectedTags.filter((currentTag) => currentTag.id !== tag.id))}
-                    />
-                  ))
-                : "no tags selected"}
-            </Stack>
+            <SelectedTags selectedTags={selectedTags} setSelectedTags={setSelectedTags} />
             <AnimatedAlert open={!!errors.tagsId?.message} severity="error">
               {errors.tagsId?.message}
             </AnimatedAlert>

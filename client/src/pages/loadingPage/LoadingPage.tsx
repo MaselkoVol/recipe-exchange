@@ -1,8 +1,10 @@
-import { Box, keyframes, styled } from "@mui/material";
+import { Box, keyframes, styled, SxProps } from "@mui/material";
 import React from "react";
 import { useColors } from "../../hooks/useColors";
 
-type Props = {};
+type Props = {
+  sx?: SxProps;
+};
 
 const l2 = keyframes`
   100% {box-shadow: 0 0 0 40px #0000}
@@ -39,9 +41,9 @@ const CustomLoader = styled("div")(() => {
   };
 });
 
-const LoadingPage = (props: Props) => {
+const LoadingPage = ({ sx }: Props) => {
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", flex: 1 }}>
+    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", flex: 1, ...sx }}>
       <CustomLoader />
     </Box>
   );

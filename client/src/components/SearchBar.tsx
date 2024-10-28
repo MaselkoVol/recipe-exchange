@@ -48,6 +48,12 @@ const SearchBar = ({
     };
   }, [inputValue]);
 
+  useEffect(() => {
+    if (!isWriting) {
+      setInputValue(query.search);
+    }
+  }, [query]);
+
   return (
     <Form
       onSubmit={(e) => {

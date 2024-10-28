@@ -24,14 +24,13 @@ const LikesController = {
           },
         ],
       };
-      const likedRecipes = await prisma.likedRecipe.findMany({
+      let likedRecipes = await prisma.likedRecipe.findMany({
         where: searchQuery,
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { createdAt: "desc" },
         // get info from recipe
         select: {
-          id: true,
           recipe: {
             select: {
               id: true,
@@ -39,36 +38,27 @@ const LikesController = {
               ingredients: true,
               mainImageUrl: true,
               tags: true,
-              views: true,
               createdAt: true,
-              author: {
-                select: {
-                  id: true,
-                  name: true,
-                  avatarUrl: true,
-                  email: true,
-                },
-              },
               // get likes count
               _count: {
-                select: { likes: true }, // Count the number of likes for each recipe
+                select: { likes: true, views: true }, // Count the number of likes for each recipe
               },
             },
           },
         },
       });
 
-      likedRecipes.forEach((likedRecipe) => {
+      likedRecipes = likedRecipes.map((likedRecipe) => {
         const recipe = likedRecipe.recipe;
-        if (recipe.author.avatarUrl) {
-          recipe.author.avatarUrl = userAvatarNameToUrl(recipe.author.avatarUrl);
-        }
         if (recipe.mainImageUrl) {
           recipe.mainImageUrl = recipeMainImageNameToUrl(recipe.mainImageUrl);
         }
         const likesCount = recipe._count.likes;
+        const views = recipe._count.views;
         delete recipe._count;
         recipe.likesCount = likesCount;
+        recipe.views = views;
+        return recipe;
       });
 
       const recipesCount = await prisma.likedRecipe.count({ where: searchQuery });

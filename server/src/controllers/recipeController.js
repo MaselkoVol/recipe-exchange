@@ -5,6 +5,7 @@ const { getFilePath } = require("../utils/getFilePath");
 const createDeleteTransaction = require("../utils/deleteFilesTransaction");
 const CommentController = require("./commentController");
 const { recipeMainImageNameToUrl, userAvatarNameToUrl, recipeImageNameToUrl } = require("../utils/imageNamesToUrl");
+const ViewsController = require("./viewsController");
 
 // TODO check getAllRecipes when you will have a lot of them
 const RecipeController = {
@@ -83,6 +84,7 @@ const RecipeController = {
       if (!foundRecipe) {
         return res.status(404).send({ error: "Recipe not found" });
       }
+
       if (foundRecipe.mainImageUrl) {
         foundRecipe.mainImageUrl = recipeMainImageNameToUrl(foundRecipe.mainImageUrl);
       }
@@ -100,13 +102,14 @@ const RecipeController = {
     }
   },
   getAllRecipes: async (req, res) => {
+    console.log(req.query);
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const search = req.query.search || "";
+    let tagsId = req.query.tags || "All";
     const searchBy = req.query["search-by"] || "All"; // title, text, ingredients
     const sort = req.query.sort || "date"; // date, likes, views
     const sortOrder = req.query["sort-order"] || "desc"; // asc, desc
-    let tagsId = req.query.tags || "All";
 
     try {
       const availableTags = await prisma.recipeTag.findMany();
@@ -121,19 +124,11 @@ const RecipeController = {
           ingredients: true,
           mainImageUrl: true,
           tags: true,
-          views: true,
           createdAt: true,
-          author: {
-            select: {
-              id: true,
-              name: true,
-              avatarUrl: true,
-              email: true,
-            },
-          },
           _count: {
             select: {
               likes: true,
+              views: true,
             },
           },
         },
@@ -196,13 +191,12 @@ const RecipeController = {
         if (recipe.mainImageUrl) {
           recipe.mainImageUrl = recipeMainImageNameToUrl(recipe.mainImageUrl);
         }
-        if (recipe.author.avatarUrl) {
-          recipe.author.avatarUrl = userAvatarNameToUrl(recipe.author.avatarUrl);
-        }
 
         const likesCount = recipe._count.likes;
+        const views = recipe._count.views;
         delete recipe._count;
         recipe.likesCount = likesCount;
+        recipe.views = views;
       });
       const totalRecipes = await prisma.recipe.count({ ...searchQuery });
       const finalResult = {
@@ -318,6 +312,9 @@ const RecipeController = {
     if (!foundRecipe) {
       return;
     }
+    await tx.recipeViews.deleteMany({ where: { recipeId } });
+    await tx.likedRecipe.deleteMany({ where: { recipeId } });
+    await tx.favoriteRecipe.deleteMany({ where: { recipeId } });
     // delete main image file
     if (foundRecipe.mainImageUrl) {
       deleteTransaction.add(getFilePath("public", "uploads", "recipes", foundRecipe.mainImageUrl));

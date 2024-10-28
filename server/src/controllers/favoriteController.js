@@ -1,5 +1,5 @@
 const prisma = require("../prismaClient");
-const { accessDenied } = require("../utils/errorHanders");
+const { accessDenied, internalServerError } = require("../utils/errorHanders");
 const { recipeMainImageNameToUrl, userAvatarNameToUrl } = require("../utils/imageNamesToUrl");
 
 const FavoriteController = {
@@ -24,13 +24,12 @@ const FavoriteController = {
           },
         ],
       };
-      const favoriteRecipes = await prisma.favoriteRecipe.findMany({
+      let favoriteRecipes = await prisma.favoriteRecipe.findMany({
         where: searchQuery,
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { createdAt: "desc" },
         select: {
-          id: true,
           recipe: {
             select: {
               id: true,
@@ -38,36 +37,27 @@ const FavoriteController = {
               ingredients: true,
               mainImageUrl: true,
               tags: true,
-              views: true,
               createdAt: true,
-              author: {
-                select: {
-                  id: true,
-                  name: true,
-                  avatarUrl: true,
-                  email: true,
-                },
-              },
-              // get likes count
               _count: {
-                select: { likes: true }, // Count the number of likes for each recipe
+                select: { likes: true, views: true }, // Count the number of likes for each recipe
               },
             },
           },
         },
       });
+      console.log(favoriteRecipes);
 
-      favoriteRecipes.forEach((favoriteRecipe) => {
+      favoriteRecipes = favoriteRecipes.map((favoriteRecipe) => {
         const recipe = favoriteRecipe.recipe;
-        if (recipe.author.avatarUrl) {
-          recipe.author.avatarUrl = userAvatarNameToUrl(recipe.author.avatarUrl);
-        }
         if (recipe.mainImageUrl) {
           recipe.mainImageUrl = recipeMainImageNameToUrl(recipe.mainImageUrl);
         }
         const likesCount = recipe._count.likes;
+        const views = recipe._count.views;
         delete recipe._count;
         recipe.likesCount = likesCount;
+        recipe.views = views;
+        return recipe;
       });
 
       const recipesCount = await prisma.favoriteRecipe.count({ where: searchQuery });

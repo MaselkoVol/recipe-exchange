@@ -1,5 +1,5 @@
 import { Box, Card, Chip, Typography } from "@mui/material";
-import React from "react";
+import React, { useRef } from "react";
 import { useColors } from "../hooks/useColors";
 import Image from "./UI/Image";
 import { hexToRGB } from "../utils/functions/colorFunctions";
@@ -9,14 +9,22 @@ import MyButton from "./UI/MyButton";
 import { RecipeShortInfo } from "../app/types";
 import { formatDate } from "../utils/functions/formatDate";
 import MyCard from "./UI/MyCard";
+import SelectedTags from "./SelectedTags";
+import { useInView, motion } from "framer-motion";
+import Carousel from "./UI/Carousel";
+import { SwiperSlide } from "swiper/react";
+import { FreeMode, Scrollbar, Mousewheel } from "swiper/modules";
 
 type Props = {
   recipe: RecipeShortInfo;
+  animated?: boolean;
 };
 
-const RecipeShort = ({ recipe }: Props) => {
+const RecipeShort = ({ recipe, animated = false }: Props) => {
   const colors = useColors();
-  return (
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: "some" });
+  const recipeShort = (
     <MyCard>
       <Typography variant="h5" component="h4">
         {recipe.title}
@@ -41,19 +49,32 @@ const RecipeShort = ({ recipe }: Props) => {
           overflow: "hidden",
         }}
       >
-        {recipe.tags &&
-          recipe.tags[0] &&
-          recipe.tags.map((tag) => <Chip color={"primary"} label={tag.name} key={tag.id} />)}
-        <Box
-          sx={{
-            position: "absolute",
-            right: 0,
-            top: 0,
-            height: "100%",
-            width: 20,
-            background: `linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(${hexToRGB(colors.bg)},1) 100%)`,
-          }}
-        ></Box>
+        <Carousel
+          sx={{ cursor: "grab", userSelect: "none" }}
+          freeMode={{ minimumVelocity: 0.5 }}
+          mousewheel
+          slidesPerView={"auto"}
+          spaceBetween={5}
+          modules={[FreeMode, Mousewheel, Scrollbar]}
+        >
+          {recipe.tags &&
+            recipe.tags[0] &&
+            recipe.tags.map((tag) => (
+              <SwiperSlide style={{ width: "auto" }}>
+                <Chip color={"primary"} label={tag.name} key={tag.id} />
+              </SwiperSlide>
+            ))}
+          <Box
+            sx={{
+              position: "absolute",
+              right: 0,
+              top: 0,
+              height: "100%",
+              width: 20,
+              background: `linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(${hexToRGB(colors.bg)},1) 100%)`,
+            }}
+          ></Box>
+        </Carousel>
       </Box>
       <Box
         sx={{
@@ -99,6 +120,19 @@ const RecipeShort = ({ recipe }: Props) => {
         </Box>
       </Box>
     </MyCard>
+  );
+
+  return animated ? (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={isInView ? { opacity: 1, scale: 1 } : {}}
+      transition={{ duration: 0.2 }}
+    >
+      {recipeShort}
+    </motion.div>
+  ) : (
+    recipeShort
   );
 };
 

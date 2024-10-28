@@ -6,6 +6,7 @@ const upload = require("../multer");
 const FollowsController = require("../controllers/followsController");
 const authCheck = require("../middleware/authCheck");
 const CurrentController = require("../controllers/currentController");
+const ViewsController = require("../controllers/viewsController");
 
 // get current user
 router.get("/current", authCheck, CurrentController.current);
@@ -29,10 +30,11 @@ router.post("/current/following/:followingId", authCheck, FollowsController.foll
 router.post("/current/liked/recipes/:recipeId", authCheck, LikesController.toggleLike);
 // add post to favorite, ony for authorized useres
 router.post("/current/favorite/recipes/:recipeId", authCheck, FavoriteController.toggleFavorite);
+router.post("/current/viewed/recipes/:recipeId", authCheck, ViewsController.addView);
 
 // unfollow user, ony for authorized useres
 router.delete("/current/following/:followingId", authCheck, FollowsController.unfollow);
-// unlike recipe, ony for authorized useres
+// delete current user
 router.delete("/current", authCheck, CurrentController.deleteUser);
 
 module.exports = router;

@@ -11,11 +11,12 @@ import { responseErrorCheck } from "../../utils/functions/responseErrorCheck";
 import { motion, useInView } from "framer-motion";
 import SearchBar from "../../components/SearchBar";
 import { StringParamsType, useControlParams } from "../../hooks/useControlParams";
+import { useLazyGetCurrentUserFavoriteRecipesQuery } from "../../app/services/favoriteApi";
 import RecipeList from "../../components/RecipeList";
 
 type Props = {};
 
-const UserRecipes = (props: Props) => {
+const FavoriteRecipes = (props: Props) => {
   // the argument is the inital values
   const { initiateParams, getParams, setParams, searchParams } = useControlParams({
     page: "1",
@@ -24,9 +25,10 @@ const UserRecipes = (props: Props) => {
   });
   const colors = useColors();
   // function to get recipes from backend
-  const [getRecipes, { data, error, isFetching }] = useLazyGetCurrentUserRecipesQuery();
+  const [getRecipes, { data, error, isFetching }] = useLazyGetCurrentUserFavoriteRecipesQuery();
   // recipes is the content that is shown on the page
   const [recipes, setRecipes] = useState<RecipeShortInfo[] | null>(null);
+  console.log(recipes);
   // meta is information for pagination.
   const [meta, setMeta] = useState<MetaType | null>(null);
   // indicates if user is writing or not
@@ -66,14 +68,8 @@ const UserRecipes = (props: Props) => {
         }}
       >
         <Typography sx={{ fontSize: 26, fontWeight: 700 }} component="h1">
-          Your recipes
+          Favorite recipes
         </Typography>
-        <ClientLink to={"/recipes/create"}>
-          <Typography sx={{ display: "flex", alignItems: "center", gap: 1 }} variant="h6" component={"h3"}>
-            Create new
-            <AddCircle />
-          </Typography>
-        </ClientLink>
       </Box>
       <SearchBar
         getValues={getRecipes}
@@ -85,6 +81,7 @@ const UserRecipes = (props: Props) => {
         setParams={setParams}
         query={query}
       />
+
       <RecipeList
         animated
         error={error}
@@ -93,16 +90,9 @@ const UserRecipes = (props: Props) => {
         query={query}
         recipes={recipes}
         setParams={setParams}
-        noResElem={
-          <ClientLink disableHoverEffect={true} to={"/recipes/create"}>
-            <MyButton size="large" fullWidth sx={{ display: "flex", alignItems: "center", gap: 1 }} variant="contained">
-              Create recipe now
-            </MyButton>
-          </ClientLink>
-        }
       />
     </Stack>
   );
 };
 
-export default UserRecipes;
+export default FavoriteRecipes;

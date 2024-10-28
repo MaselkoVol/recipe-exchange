@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, SxProps } from "@mui/material";
 import React, { useMemo, useState } from "react";
 import MyAccordion from "./MyAccordion";
 import MyAccordionSummary from "./MyAccordionSummary";
@@ -12,21 +12,22 @@ export type AccordionNodeType = {
 type Props = {
   elements: AccordionNodeType[];
   linked?: boolean;
+  sx?: SxProps;
 };
 
-const AccordionList = ({ elements, linked = false }: Props) => {
+const AccordionList = ({ sx, elements, linked = false }: Props) => {
   const [expanded, setExpanded] = useState(-1);
   const handleChange = (event: React.SyntheticEvent<Element, Event>, idx: number) => {
     setExpanded(idx === expanded ? -1 : idx);
   };
   const renderAccordion = (element: AccordionNodeType, idx: number) => {
     return linked ? (
-      <MyAccordion expanded={idx === expanded} onChange={(e) => handleChange(e, idx)} key={idx}>
+      <MyAccordion sx={sx} expanded={idx === expanded} onChange={(e) => handleChange(e, idx)} key={idx}>
         <MyAccordionSummary>{element.summary}</MyAccordionSummary>
         <MyAccordionDetails>{element.details}</MyAccordionDetails>
       </MyAccordion>
     ) : (
-      <MyAccordion>
+      <MyAccordion sx={sx}>
         <MyAccordionSummary>{element.summary}</MyAccordionSummary>
         <MyAccordionDetails>{element.details}</MyAccordionDetails>
       </MyAccordion>

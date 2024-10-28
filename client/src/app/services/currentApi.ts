@@ -12,9 +12,9 @@ export const currentApi = api.injectEndpoints({
       { data: RecipeShortInfo[]; meta: MetaType },
       { page: string; limit: string; search: string }
     >({
-      query: ({ page, limit, search }) => ({
+      query: (params) => ({
         url: "/current/recipes",
-        params: { page, limit, search },
+        params: params,
       }),
     }),
   }),

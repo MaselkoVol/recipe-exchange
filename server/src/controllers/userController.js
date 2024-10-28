@@ -96,6 +96,7 @@ const UserController = {
           createdAt: true,
           tags: true,
           views: true,
+          createdAt: true,
           // get likes count
           _count: {
             select: { likes: true }, // Count the number of likes for each recipe
@@ -139,6 +140,7 @@ const UserController = {
     if (!foundUser) return;
     deleteTransaction.add(getFilePath("public", "uploads", "users", foundUser.avatarUrl));
     await tx.follows.deleteMany({ where: { OR: [{ followerId: userId }, { followingId: userId }] } });
+    await tx.recipeViews.deleteMany({ where: { userId } });
     await tx.likedRecipe.deleteMany({ where: { userId } });
     await tx.favoriteRecipe.deleteMany({ where: { userId } });
     await tx.message.deleteMany({ where: { OR: [{ receiverId: userId }, { senderId: userId }] } });

@@ -3,7 +3,7 @@ import { Button, ButtonProps, Palette, styled } from "@mui/material";
 import { useColors } from "../../hooks/useColors";
 
 type Props = ButtonProps & {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 };
 
 const CustomButton = styled(Button)(() => {

@@ -87,10 +87,9 @@ const CurrentController = {
           mainImageUrl: true,
           createdAt: true,
           tags: true,
-          views: true,
           // get likes count
           _count: {
-            select: { likes: true }, // Count the number of likes for each recipe
+            select: { likes: true, views: true }, // Count the number of likes for each recipe
           },
         },
         skip: (page - 1) * limit,
@@ -103,8 +102,10 @@ const CurrentController = {
           recipe.mainImageUrl = recipeMainImageNameToUrl(recipe.mainImageUrl);
         }
         const likesCount = recipe._count.likes;
+        const views = recipe._count.views;
         delete recipe._count;
         recipe.likesCount = likesCount;
+        recipe.views = views;
       });
 
       const recipesCount = await prisma.recipe.count({ where: searchQuery });

@@ -36,14 +36,14 @@ const CustomLinkDisableUnderline = styled(LinkRouter)(() => {
   return styles;
 });
 
-const ClientLink = ({ darkColor, lightColor, to, children, disableHoverEffect, sx, ...rest }: Props) => {
-  const theme = useTheme();
+const ClientLink = ({ darkColor, lightColor, to, children, disableHoverEffect = false, sx, ...rest }: Props) => {
+  const colors = useColors();
   const FinalLink = disableHoverEffect ? CustomLinkDisableUnderline : CustomLink;
   return (
     <FinalLink
       sx={{
         ...sx,
-        color: theme.palette.mode === "dark" ? darkColor : lightColor,
+        color: colors.palette.mode === "dark" ? darkColor : lightColor,
       }}
       to={to || "#"}
       {...rest}

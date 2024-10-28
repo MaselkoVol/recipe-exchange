@@ -15,9 +15,9 @@ import styled from "@emotion/styled";
 type Props = {};
 
 const links = [
+  ["Home", "/"],
+  ["Find recipes", "/recipe"],
   ["About", "/about"],
-  ["Home", "/home"],
-  ["Business", "/business"],
 ];
 
 const CustomAppBar = styled(AppBar)`
@@ -83,9 +83,17 @@ const Header = (props: Props) => {
         </Box>
 
         <Box sx={{ display: { xs: "none", md: "block" } }}>
-          <ul style={{ flexWrap: "wrap", display: "flex", listStyle: "none", columnGap: 20 }}>
+          <ul
+            style={{
+              flexWrap: "wrap",
+              display: "flex",
+              alignItems: "center",
+              listStyle: "none",
+              columnGap: 20,
+            }}
+          >
             {links.map((link, idx) => (
-              <li style={{ flex: 1 }} key={idx}>
+              <li style={{ flexGrow: 1 }} key={idx}>
                 <ClientLink lightColor="white" darkColor="white" to={link[1]}>
                   {link[0]}
                 </ClientLink>
