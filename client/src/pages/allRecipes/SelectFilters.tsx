@@ -39,14 +39,14 @@ const SelectFilters = ({ resetParams, setParams, variant = "block", sx, buttonSx
     const modifiedTags = selectedTags.map((tag) => tag.id);
     const joinedTags = modifiedTags.join(",");
     console.log(joinedTags);
-    setParams({ tags: joinedTags }, true);
+    setParams({ tags: joinedTags, page: "1" }, true);
   }, [selectedTags]);
   useEffect(() => {
-    setParams({ "search-by": selectedSearchBy }, true);
+    setParams({ "search-by": selectedSearchBy, page: "1" }, true);
   }, [selectedSearchBy]);
 
   useEffect(() => {
-    setParams({ sort: selectedSortBy }, true);
+    setParams({ sort: selectedSortBy, page: "1" }, true);
   }, [selectedSortBy]);
 
   const filter = (

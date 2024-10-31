@@ -25,7 +25,6 @@ export const useControlParams = (paramStartValues: StringParamsType) => {
   // if the url already has all of the parameters, do nothing; otherwise, set the absent parameters in the url
   const initiateParams: InitiateParamsType = () => {
     const modifiedSearchParams = new URLSearchParams(searchParams);
-    console.log(modifiedSearchParams);
     let isModified = false;
     for (const key in paramStartValues) {
       if (modifiedSearchParams.has(key)) continue;

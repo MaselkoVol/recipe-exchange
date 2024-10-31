@@ -25,11 +25,8 @@ const CustomContrastTextField = styled(TextField)(() => {
 });
 
 const MyTextField = forwardRef<HTMLElement, Props>(({ isContrast = false, ...rest }, ref) => {
-  return isContrast ? (
-    <CustomContrastTextField inputRef={ref} {...rest} />
-  ) : (
-    <CustomTextField inputRef={ref} {...rest} />
-  );
+  const InputField = isContrast ? CustomContrastTextField : CustomTextField;
+  return <InputField inputRef={ref} {...rest} />;
 });
 
 export default MyTextField;

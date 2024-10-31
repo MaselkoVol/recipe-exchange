@@ -15,50 +15,61 @@ type Props = {};
 const Home = (props: Props) => {
   const colors = useColors();
   return (
-    <Carousel
-      sx={{ height: "calc(100vh - 64px)", width: "100%" }}
-      direction={"vertical"}
-      slidesPerView={1}
-      spaceBetween={30}
-      mousewheel
-      scrollbar={{ draggable: true }}
-      keyboard
-      modules={[Mousewheel, Scrollbar, Keyboard]}
-    >
-      <SwiperSlide>
-        <Container>
-          <MyCard sx={{ flexDirection: "row", gap: 10 }}>
-            <Stack sx={{ flex: 1 }} spacing={2}>
-              <ClientLink disableHoverEffect to={"/recipe"}>
-                <Typography variant="h2" component={"h2"} sx={{ fontWeight: 700, textWrap: "pretty" }}>
-                  Find your favorite recipes{" "}
-                  <span style={{ textDecoration: "underline", color: colors.palette.grey[700] }}>now!</span>
-                </Typography>
-              </ClientLink>
-              <Typography variant="h6" component={"h1"} sx={{ fontWeight: 500, textWrap: "pretty" }}>
-                Our recipe exchange platform lets food lovers from around the world share their tastiest creations,
-                you'll find endless inspiration here.
+    <Box sx={{ flex: 1, py: 2, display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <Container>
+        <MyCard
+          sx={{
+            flexDirection: { xs: "column-reverse", md: "row" },
+            columnGap: 10,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Stack sx={{ py: { xs: 2, md: 8 }, flex: 1, gap: { xs: 3, md: 2 } }}>
+            <ClientLink disableHoverEffect to={"/recipe"}>
+              <Typography
+                variant="h1"
+                component={"h1"}
+                sx={{ fontWeight: 700, fontSize: { xs: 36, md: 40 }, textWrap: "pretty" }}
+              >
+                Find your favorite recipes{" "}
+                <span style={{ textDecoration: "underline", color: colors.contrast }}>now!</span>
               </Typography>
-              <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+            </ClientLink>
+            <Typography
+              variant="h6"
+              component={"h2"}
+              sx={{ fontWeight: 500, fontSize: { xs: 16, md: 20 }, textWrap: "pretty" }}
+            >
+              Our recipe exchange platform lets food lovers from around the world share their tastiest creations, you'll
+              find endless inspiration here.
+            </Typography>
+            <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+              <ClientLink to={"/login"}>
                 <MyButton size="large" variant="contained">
                   Login
                 </MyButton>
+              </ClientLink>
+              <ClientLink to={"/register"}>
                 <MyButton size="large" variant="outlined">
                   Register
                 </MyButton>
-              </Box>
-            </Stack>
-            <Image
-              sx={{ flex: 1 }}
-              src="https://static.vecteezy.com/system/resources/thumbnails/021/476/363/small_2x/smiling-woman-cooking-and-listening-to-music-png.png"
-            />
-          </MyCard>
-        </Container>
-      </SwiperSlide>
-      <SwiperSlide>
-        <Box>Idi nahui</Box>
-      </SwiperSlide>
-    </Carousel>
+              </ClientLink>
+            </Box>
+          </Stack>
+          <Image
+            sx={{
+              display: { xs: "none", sm: "block" },
+              flex: 1,
+              aspectRatio: "16/9",
+              maxWidth: "80%",
+              paddingBottom: "30%",
+            }}
+            src="https://www.pngall.com/wp-content/uploads/12/Cooking-PNG-Free-Image.png"
+          />
+        </MyCard>
+      </Container>
+    </Box>
   );
 };
 

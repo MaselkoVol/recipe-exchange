@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ThemeSwitch from "../features/theme/ThemeSwitch";
-import { AppBar, Box, Drawer, IconButton, List, ListItem, Toolbar } from "@mui/material";
+import { AppBar, Box, Drawer, IconButton, List, ListItem, Toolbar, Typography } from "@mui/material";
 import ClientLink from "./UI/ClientLink";
 import { AccountCircle, Login, Logout, Menu } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
@@ -62,21 +62,38 @@ const Header = (props: Props) => {
             </IconButton>
 
             <Drawer open={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}>
-              <List sx={{ pr: 10 }}>
-                {links.map((link, idx) => (
-                  <ListItem key={idx}>
-                    <ClientLink darkColor="white" to={link[1]}>
-                      {link[0]}
-                    </ClientLink>
-                  </ListItem>
-                ))}
+              <List
+                sx={{
+                  p: 2,
+                  bgcolor: colors.bg,
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1,
+                }}
+              >
+                <Box sx={{ display: "flex", position: "relative", alignItems: "flex-end" }}>
+                  <Logo style={{ position: "relative", top: -2, width: 45, height: 45, zIndex: 10 }} />
+                  <Box sx={{ position: "relative", top: 8, ml: -1, zIndex: 5 }}>
+                    <LogoText style={{ width: 100 }} />
+                  </Box>
+                </Box>
+                <Box sx={{ pr: 4 }}>
+                  {links.map((link, idx) => (
+                    <ListItem key={idx}>
+                      <ClientLink darkColor="white" to={link[1]}>
+                        <Typography variant="h5">{link[0]}</Typography>
+                      </ClientLink>
+                    </ListItem>
+                  ))}
+                </Box>
               </List>
             </Drawer>
           </Box>
 
           <Box sx={{ display: "flex", position: "relative", alignItems: "flex-end" }}>
             <Logo style={{ position: "relative", top: -2, width: 45, height: 45 }} />
-            <Box sx={{ display: { xs: "none", sm: "block" }, position: "relative", top: 8, ml: -1, zIndex: -1 }}>
+            <Box sx={{ position: "relative", top: 8, ml: -1, zIndex: -1 }}>
               <LogoText style={{ width: 100 }}></LogoText>
             </Box>
           </Box>

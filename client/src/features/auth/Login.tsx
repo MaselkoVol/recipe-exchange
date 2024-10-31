@@ -26,7 +26,7 @@ type Props = {};
 const Login = (props: Props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const location = useLocation();
   const [login, { isLoading, error }] = useLoginMutation();
 
   const {
@@ -44,7 +44,11 @@ const Login = (props: Props) => {
     const result = await login(data);
     if (!result.error) {
       dispatch(setCredentials({ token: result.data.accessToken, status: true }));
-      navigate(-1);
+      if (location.state?.returnTo) {
+        navigate(location.state.returnTo);
+      } else {
+        navigate("/current/recipes");
+      }
     }
   };
 

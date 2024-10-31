@@ -46,11 +46,14 @@ import { useLazyIsAddedToFavoriteQuery, useToggleFavoriteMutation } from "../../
 import { useAddViewMutation } from "../../app/services/viewsApi";
 import SelectedTags from "../../components/SelectedTags";
 import { Navigation } from "swiper/modules";
+import MyTextField from "../../components/UI/input/MyTextField";
+import TextFieldMultiline from "../../components/UI/input/TextFieldMultiline";
 
 type Props = {};
 
 const Recipe = (props: Props) => {
   const isAuth = useSelector((selector: RootState) => selector.auth.status);
+  const colors = useColors();
 
   const [loginOpen, setLoginOpen] = useState(false);
   const theme = useTheme();
@@ -196,6 +199,14 @@ const Recipe = (props: Props) => {
               </Box>
             </MyCard>
           </Box>
+        </Grid>
+        <Grid item xs={12}>
+          <Stack spacing={2} sx={{ pt: 2 }}>
+            <Typography variant={"h4"} sx={{ color: colors.contrast }}>
+              Comments
+            </Typography>
+            <TextFieldMultiline isContrast label="Write a comment" />
+          </Stack>
         </Grid>
       </Grid>
 

@@ -60,7 +60,7 @@ const RecipeShort = ({ recipe, animated = false }: Props) => {
           {recipe.tags &&
             recipe.tags[0] &&
             recipe.tags.map((tag) => (
-              <SwiperSlide style={{ width: "auto" }}>
+              <SwiperSlide key={tag.id} style={{ width: "auto" }}>
                 <Chip color={"primary"} label={tag.name} key={tag.id} />
               </SwiperSlide>
             ))}

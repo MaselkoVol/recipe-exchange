@@ -20,6 +20,7 @@ import { useDispatch } from "react-redux";
 import { addToSnackBar } from "../../features/snackbar/snackbarSlice";
 import MyLabel from "../../components/UI/MyLabel";
 import SelectedTags from "../../components/SelectedTags";
+import TextFieldMultiline from "../../components/UI/input/TextFieldMultiline";
 
 type Props = {};
 
@@ -119,10 +120,8 @@ const CreateRecipe = (props: Props) => {
           sx={{ mt: 2, display: "flex", gap: 4, flexDirection: "column", width: "100%" }}
         >
           <Stack spacing={1}>
-            <MyTextField
-              fullWidth
-              rows={3}
-              multiline
+            <TextFieldMultiline
+              rows={2}
               {...register("title", {
                 required: "Title is required",
               })}
@@ -134,10 +133,8 @@ const CreateRecipe = (props: Props) => {
           </Stack>
 
           <Stack spacing={1}>
-            <MyTextField
-              fullWidth
-              rows={4}
-              multiline
+            <TextFieldMultiline
+              rows={2}
               {...register("ingredients", {
                 required: "Ingredients are required",
               })}
@@ -150,10 +147,8 @@ const CreateRecipe = (props: Props) => {
           </Stack>
 
           <Stack spacing={1}>
-            <MyTextField
-              fullWidth
-              rows={16}
-              multiline
+            <TextFieldMultiline
+              rows={4}
               {...register("text", {
                 required: "Recipe is required",
               })}

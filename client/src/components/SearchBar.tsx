@@ -36,7 +36,7 @@ const SearchBar = ({
     // debouncer
     const handler = setTimeout(() => {
       // if in your url there is no page or search, they will not be added.
-      setParams({ ...query, page: "1", search: inputValue }, true);
+      setParams({ page: "1", search: inputValue }, true);
       // after 100 ms set isWriting to false, it is done in order to prevent ui from jerking
       setTimeout(() => {
         setIsWriting(false);

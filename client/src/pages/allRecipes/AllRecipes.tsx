@@ -10,6 +10,9 @@ import { useInView, motion } from "framer-motion";
 import RecipeShort from "../../components/RecipeShort";
 import SelectFilters, { SearchByType, SortByType } from "./SelectFilters";
 import RecipeList from "../../components/RecipeList";
+import Carousel from "../../components/UI/Carousel";
+import { FreeMode, Mousewheel, Scrollbar } from "swiper/modules";
+import { SwiperSlide } from "swiper/react";
 
 type Props = {};
 
@@ -49,16 +52,16 @@ const AllRecipes = (props: Props) => {
 
   return (
     <Container sx={{ py: 3 }}>
-      <Grid container spacing={4}>
+      <Grid container spacing={isMd ? 4 : 2}>
         <Grid xs={12} md={5} item>
           <Box
             sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
               position: "sticky",
               top: 87,
               maxHeight: { xs: "auto", md: "calc(100vh - 112px)" },
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
             }}
           >
             <SearchBar
@@ -71,7 +74,12 @@ const AllRecipes = (props: Props) => {
               getValues={getRecipes}
               isFetching={isFetching}
             />
-            <SelectFilters variant={isMd ? "block" : "button"} resetParams={resetParams} setParams={setParams} />
+            <SelectFilters
+              buttonSx={{ width: "100%" }}
+              variant={isMd ? "block" : "button"}
+              resetParams={resetParams}
+              setParams={setParams}
+            />
           </Box>
         </Grid>
         <Grid xs={12} md={7} item>
