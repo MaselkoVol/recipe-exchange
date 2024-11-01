@@ -2,7 +2,7 @@ const prisma = require("../prismaClient");
 const { BASE_URL } = require("../utils/constants");
 const { deleteFileIfExists } = require("../utils/deleteFileIfExists");
 const createDeleteTransaction = require("../utils/deleteFilesTransaction");
-const { internalServerError } = require("../utils/errorHanders.js");
+const { internalServerError, allFieldsRequired } = require("../utils/errorHanders.js");
 const { getFilePath } = require("../utils/getFilePath.js");
 const { commentImagesNameToUrl, userAvatarNameToUrl } = require("../utils/imageNamesToUrl.js");
 const CommentController = {
@@ -12,8 +12,7 @@ const CommentController = {
     let { text } = req.body;
 
     let images = null;
-
-    if (req.files) {
+    if (req.files && req.files[0]) {
       images = req.files;
     }
 
@@ -105,9 +104,15 @@ const CommentController = {
         }
       });
       const totalComments = await prisma.recipeComment.count({ where: { recipeId } });
+      comments;
       const finalResult = {
         data: comments,
-        meta: { commentsPage, commentsLimit, totalPages: Math.ceil(totalComments / commentsLimit) },
+        count: totalComments,
+        meta: {
+          commentsPage,
+          commentsLimit,
+          totalPages: Math.ceil(totalComments / commentsLimit),
+        },
       };
       res.json(finalResult);
     } catch (error) {

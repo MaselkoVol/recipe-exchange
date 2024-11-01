@@ -5,13 +5,13 @@ import { CloudUpload } from "@mui/icons-material";
 
 type Props = React.InputHTMLAttributes<HTMLInputElement> & {
   children: React.ReactNode;
-  btnSx?: SxProps;
+  sx?: SxProps;
   btnVariant?: "text" | "outlined" | "contained";
 };
 
-const InputFile = ({ btnVariant, children, btnSx, accept, ...rest }: Props) => {
+const InputFile = ({ btnVariant, children, sx, accept, ...rest }: Props) => {
   return (
-    <MyButton startIcon={<CloudUpload />} variant={btnVariant || "outlined"}>
+    <MyButton sx={sx} startIcon={<CloudUpload />} variant={btnVariant || "outlined"}>
       <label
         style={{
           cursor: "pointer",

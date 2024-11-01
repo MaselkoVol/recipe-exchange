@@ -45,7 +45,7 @@ const Login = (props: Props) => {
     if (!result.error) {
       dispatch(setCredentials({ token: result.data.accessToken, status: true }));
       if (location.state?.returnTo) {
-        navigate(location.state.returnTo);
+        navigate(location.state.returnTo, { preventScrollReset: true });
       } else {
         navigate("/current/recipes");
       }

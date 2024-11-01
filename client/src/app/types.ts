@@ -98,4 +98,12 @@ export type UserFollowers = {
   meta: MetaType;
 };
 
+export type Comment = {
+  rating: number;
+  text: string;
+  createdAt: string;
+  images: Image[];
+  user: UserShortInfo;
+};
+
 export type LikeResponse = ({ message: string } | { error: string }) & { active: boolean };

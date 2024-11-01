@@ -51,7 +51,7 @@ const RecipeShort = ({ recipe, animated = false }: Props) => {
       >
         <Carousel
           sx={{ cursor: "grab", userSelect: "none" }}
-          freeMode={{ minimumVelocity: 0.5 }}
+          freeMode
           mousewheel
           slidesPerView={"auto"}
           spaceBetween={5}

@@ -22,8 +22,9 @@ const SnackBar = (props: Props) => {
     });
     const jsxElements = elements.map((element) => (
       <Alert
+        key={element.id}
         variant="filled"
-        security={element.severity}
+        severity={element.severity}
         onClose={() => {
           dispatch(removeFromSnackBar(element));
         }}

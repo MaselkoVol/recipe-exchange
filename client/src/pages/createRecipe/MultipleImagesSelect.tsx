@@ -31,9 +31,21 @@ type Props = {
   allowedTypes?: string;
   inputText: string;
   maxImages?: number;
+  sx?: SxProps;
+  buttonSx?: SxProps;
+  removeInactiveAlert?: boolean;
 };
 
-const MultipleImagesSelect = ({ maxImages, inputText, allowedTypes, selectedFiles, setSelectedFiles }: Props) => {
+const MultipleImagesSelect = ({
+  maxImages = 10,
+  inputText,
+  allowedTypes = "image/jpeg, image/png, image/webp, image/jpg",
+  selectedFiles,
+  sx,
+  buttonSx,
+  removeInactiveAlert = false,
+  setSelectedFiles,
+}: Props) => {
   const theme = useTheme();
   const isTouchScreen = useSelector((selector: RootState) => selector.touchScreen.isTouchScreen);
   const [imagesFileWithDataURL, setImagesFileWithDataURL] = useState<FileWithDataURL[] | null>(null);
@@ -103,8 +115,8 @@ const MultipleImagesSelect = ({ maxImages, inputText, allowedTypes, selectedFile
   };
 
   return (
-    <Stack spacing={1}>
-      {imagesFileWithDataURL && (
+    <Box sx={{ display: "flex", flexDirection: "column", ...sx }}>
+      {imagesFileWithDataURL && imagesFileWithDataURL.length > 0 && (
         <Box
           sx={{
             mb: 1,
@@ -139,13 +151,19 @@ const MultipleImagesSelect = ({ maxImages, inputText, allowedTypes, selectedFile
           <ImageFullscreen selectedURL={selectedURL} setSelectedURL={setSelectedURL} />
         </Box>
       )}
-      <InputFile multiple onChange={handleFilesSelect} accept={allowedTypes || ""}>
+      <InputFile sx={{ flex: 1, ...buttonSx }} multiple onChange={handleFilesSelect} accept={allowedTypes || ""}>
         {inputText}
       </InputFile>
-      <AnimatedAlert open={isLimitExceeded} variant="standard" severity="error">
-        Maximum 10 files
+      <AnimatedAlert
+        mt={1}
+        sx={{ display: !removeInactiveAlert || isLimitExceeded ? "grid" : "none" }}
+        open={isLimitExceeded}
+        variant="standard"
+        severity="error"
+      >
+        Maximum {maxImages} files
       </AnimatedAlert>
-    </Stack>
+    </Box>
   );
 };
 

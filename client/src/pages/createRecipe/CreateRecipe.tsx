@@ -83,7 +83,6 @@ const CreateRecipe = (props: Props) => {
     if (selectedTags) {
       data.tagsId = JSON.stringify(selectedTags.map((tag) => tag.id));
     }
-    console.log(data);
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("text", data.text);
@@ -103,7 +102,6 @@ const CreateRecipe = (props: Props) => {
       navigate("/current/recipes");
     }
   };
-  const colors = useColors();
 
   return (
     <Box
@@ -168,7 +166,6 @@ const CreateRecipe = (props: Props) => {
             <MyLabel>Main Image</MyLabel>
             <OneFileSelect
               selectedFile={selectedMainFile}
-              allowedTypes="image/jpeg, image/png, image/webp, image/jpg"
               setSelectedFile={setSelectedMainFile}
               inputText="Choose main image"
             />

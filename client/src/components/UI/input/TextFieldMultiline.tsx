@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import { useResizeObserver } from "../../../hooks/useResizeObserver";
-import { FormControl, InputLabel, styled, TextareaAutosize } from "@mui/material";
+import { FormControl, InputLabel, styled, SxProps, TextareaAutosize } from "@mui/material";
 import { useColors } from "../../../hooks/useColors";
 
 const CustomTextArea = styled("textarea")(() => {
@@ -52,10 +52,12 @@ const CustomContrastTextArea = styled("textarea")(() => {
 type Props = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
   label?: string;
   isContrast?: boolean;
+  fullWidth?: boolean;
+  sx?: SxProps;
 };
 
 const TextFieldMultiline = forwardRef<HTMLTextAreaElement, Props>(
-  ({ rows, label, onChange, isContrast = false, ...rest }, ref) => {
+  ({ rows, label, onChange, isContrast = false, fullWidth = false, sx, ...rest }, ref) => {
     const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
     const size = useResizeObserver(textAreaRef);
 
@@ -98,7 +100,7 @@ const TextFieldMultiline = forwardRef<HTMLTextAreaElement, Props>(
 
     const Textarea = isContrast ? CustomContrastTextArea : CustomTextArea;
     return (
-      <FormControl>
+      <FormControl sx={{ width: fullWidth ? "100%" : "auto", ...sx }}>
         <Textarea rows={rows} placeholder={label || ""} ref={textAreaRef} onChange={handleChange} {...rest} />
       </FormControl>
     );
