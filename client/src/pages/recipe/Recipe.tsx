@@ -1,18 +1,6 @@
-import {
-  Box,
-  Card,
-  Chip,
-  Container,
-  Dialog,
-  Grid,
-  IconButton,
-  Stack,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Box, Container, Grid, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { useGetRecipeQuery } from "../../app/services/recipeApi";
 import Image from "../../components/UI/Image";
 import UserInfo from "../../components/UserInfo";
@@ -27,10 +15,8 @@ import MyLabel from "../../components/UI/MyLabel";
 import { convertToParagraphs } from "../../utils/functions/convertToParagraphs";
 import { useLazyIsRecipeLikedQuery, useToggleLikeMutation } from "../../app/services/likesApi";
 import ImageFullscreen from "../../components/UI/ImageFullscreen";
-import { debounder } from "../../utils/functions/debouncer";
-import { useDebounce } from "../../hooks/useDebounce";
 import LoadingPage from "../loadingPage/LoadingPage";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import UnregisteredDialog from "../../components/UnregisteredDialog";
 import { useOptimisticButton } from "../../hooks/useOptimisticButton";
@@ -38,23 +24,9 @@ import { useLazyIsAddedToFavoriteQuery, useToggleFavoriteMutation } from "../../
 import { useAddViewMutation } from "../../app/services/viewsApi";
 import SelectedTags from "../../components/SelectedTags";
 import { Navigation } from "swiper/modules";
-import MyTextField from "../../components/UI/input/MyTextField";
-import TextFieldMultiline from "../../components/UI/input/TextFieldMultiline";
-import LoadingButton from "../../components/UI/LoadingButton";
-import MyButton from "../../components/UI/MyButton";
-import MultipleImagesSelect from "../createRecipe/MultipleImagesSelect";
-import { SubmitHandler, useForm } from "react-hook-form";
-import AnimatedAlert from "../../components/UI/AnimatedAlert";
-import { useCreateCommentMutation } from "../../app/services/commentApi";
-import { addToSnackBar } from "../../features/snackbar/snackbarSlice";
-import Form from "../../components/UI/Form";
+import CommentsSection from "./CommentsSection";
 
 type Props = {};
-
-type CommentForm = {
-  text: string;
-  images?: File[];
-};
 
 const Recipe = (props: Props) => {
   const isAuth = useSelector((selector: RootState) => selector.auth.status);
@@ -94,45 +66,6 @@ const Recipe = (props: Props) => {
     useToggleBtnMutation: useToggleFavoriteMutation,
   });
 
-  const [isCommentFieldOpen, setIsCommentFiledOpen] = useState(false);
-  const [selectedCommentImages, setSelectedComemntImages] = useState<File[] | null>(null);
-  const [createComment, { isLoading, isError }] = useCreateCommentMutation();
-  const dispatch = useDispatch();
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<CommentForm>();
-
-  const onSubmit: SubmitHandler<CommentForm> = async (data) => {
-    reset();
-    setSelectedComemntImages(null);
-    if (!recipe?.id) return;
-
-    if (selectedCommentImages) {
-      data.images = selectedCommentImages;
-    }
-    const formData = new FormData();
-    formData.append("text", data.text);
-    if (data.images && data.images.length) {
-      data.images.forEach((image) => {
-        formData.append("images", image);
-      });
-    }
-    const res = await createComment({ data: formData, recipeId: recipe.id });
-
-    if (res.error) {
-      dispatch(
-        addToSnackBar({ livingTime: 2000, severity: "error", text: "Something went wrong during comment creation" })
-      );
-    } else {
-      dispatch(
-        addToSnackBar({ livingTime: 2000, severity: "success", text: "You have successfully created comment." })
-      );
-    }
-  };
-
   return isRecipeError ? (
     <Typography>Error</Typography>
   ) : isRecipeLoading || !recipe ? (
@@ -140,52 +73,78 @@ const Recipe = (props: Props) => {
   ) : (
     <Container sx={{ my: 2 }}>
       <Grid container spacing={2}>
-        <Grid xs={12} item>
+        <Grid xs={12} item sx={{ display: { xs: "initial", md: "none" } }}>
           <MyCard>
             <Typography sx={{ fontWeight: 700 }} variant={matches ? "h4" : "h5"} component="h1">
               {recipe.title}
             </Typography>
           </MyCard>
         </Grid>
-        <Grid xs={12} md={6} item>
-          {recipe.mainImageUrl && (
-            <Image
-              sx={{ aspectRatio: { xs: "4/3", md: "initial" }, paddingBottom: "60%", height: "100%" }}
-              src={recipe.mainImageUrl || ""}
-            />
-          )}
+        <Grid xs={12} item>
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2 }}>
+            {recipe.mainImageUrl && (
+              <Image
+                sx={{
+                  borderRadius: 2,
+                  overflow: "hidden",
+                  order: { xs: 1, md: 2 },
+                  width: "100%",
+                  aspectRatio: "16/9",
+                  height: "100%",
+                }}
+                src={recipe.mainImageUrl || ""}
+              />
+            )}
+            <MyCard
+              elevation={0}
+              sx={{
+                order: { xs: 2, md: 1 },
+                width: "100%",
+                gap: 2,
+                minHeight: "100%",
+                justifyContent: "space-between",
+              }}
+            >
+              <Box sx={{ display: { xs: "none", md: "block" } }}>
+                <Typography sx={{ mt: 2, fontWeight: 700 }} variant={matches ? "h4" : "h5"} component="h1">
+                  {recipe.title}
+                </Typography>
+              </Box>
+              <Box>
+                <MyLabel>Tags</MyLabel>
+                <SelectedTags selectedTags={recipe.tags} color="primary" />
+              </Box>
+            </MyCard>
+          </Box>
         </Grid>
-        <Grid xs={12} md={6} item>
-          <MyCard
-            elevation={0}
-            sx={{
-              gap: 2,
-              minHeight: "100%",
-              justifyContent: "space-between",
-            }}
-          >
-            <Box>
-              <MyLabel>Ingredients</MyLabel>
+        <Grid xs={12} item>
+          <Box sx={{ display: "grid", gap: 2, width: "100%", gridTemplateColumns: { xs: "1fr", md: "4fr 3fr" } }}>
+            <MyCard sx={{ order: { xs: 2, md: 1 } }}>
+              <MyLabel>Recipe</MyLabel>
               <Typography
-                sx={{ whiteSpace: "break-spaces", display: "flex", flexDirection: "column", gap: 1.2 }}
-                variant="h6"
+                sx={{ fontWeight: 500, textAlign: "justify", whiteSpace: "break-spaces" }}
+                variant="body1"
                 component="pre"
               >
-                {convertToParagraphs(recipe.ingredients)}
+                {recipe.text}
               </Typography>
-            </Box>
-            <Box>
-              <MyLabel>Tags</MyLabel>
-              <SelectedTags selectedTags={recipe.tags} color="primary" />
-            </Box>
-          </MyCard>
-        </Grid>
-        <Grid xs={12} sx={{ alignSelf: "stretch", gridArea: "biggest" }} item>
-          <MyCard sx={{ minHeight: "100%" }}>
-            <Typography sx={{ maxWidth: 600, whiteSpace: "break-spaces" }} variant="h6" component="pre">
-              {recipe.text}
-            </Typography>
-          </MyCard>
+            </MyCard>
+            <MyCard
+              sx={{
+                order: { xs: 1, md: 2 },
+                position: { xs: "flex", md: "sticky" },
+                top: 87,
+                left: 0,
+                height: "auto",
+                alignSelf: "start",
+                fontSize: 16,
+                fontWeight: 500,
+              }}
+            >
+              <MyLabel>Ingredients</MyLabel>
+              {convertToParagraphs(recipe.ingredients)}
+            </MyCard>
+          </Box>
         </Grid>
         {recipe.images.length > 0 && (
           <Grid xs={12} item>
@@ -211,7 +170,7 @@ const Recipe = (props: Props) => {
           </Grid>
         )}
         <Grid item xs={12}>
-          <Box sx={{ display: "flex", flexWrap: "wrap-reverse", gap: 2, mt: 1 }}>
+          <Box sx={{ display: "flex", flexWrap: "wrap-reverse", columnGap: 2, rowGap: 1, mt: 1 }}>
             <MyCard
               sx={{
                 flexDirection: "row",
@@ -243,76 +202,7 @@ const Recipe = (props: Props) => {
           </Box>
         </Grid>
         <Grid item xs={12}>
-          <Stack spacing={4} sx={{ pt: 2 }}>
-            <Form onSubmit={handleSubmit(onSubmit)}>
-              <Stack spacing={2}>
-                <Typography variant={"h4"} sx={{ color: colors.contrast }}>
-                  Comments
-                </Typography>
-                <TextFieldMultiline
-                  {...register("text", {
-                    required: "RecipeTextIsRequired",
-                  })}
-                  onClick={() => setIsCommentFiledOpen(true)}
-                  fullWidth
-                  isContrast
-                  label="Write a comment"
-                />
-                <Stack
-                  spacing={1}
-                  sx={{
-                    display: isCommentFieldOpen ? "flex" : "none",
-                  }}
-                >
-                  <AnimatedAlert open={!!errors.text?.message} severity="error">
-                    {errors.text?.message}
-                  </AnimatedAlert>
-                  <MyCard
-                    sx={{
-                      flexDirection: { xs: "column", md: "row" },
-                      justifyContent: "space-between",
-                      columnGap: 8,
-                      rowGap: 2,
-                      alignItems: "flex-end",
-                    }}
-                  >
-                    <MultipleImagesSelect
-                      maxImages={5}
-                      sx={{ flex: 1, width: "100%", alignSelf: { md: "stretch" } }}
-                      selectedFiles={selectedCommentImages}
-                      setSelectedFiles={setSelectedComemntImages}
-                      inputText="Add images"
-                    />
-                    <Box
-                      sx={{
-                        ml: "auto",
-                        display: "flex",
-                        gap: 2,
-                        justifyContent: "flex-end",
-                      }}
-                    >
-                      <MyButton variant="text" onClick={() => setIsCommentFiledOpen(false)}>
-                        Cancel
-                      </MyButton>
-                      <LoadingButton
-                        onClick={(e) => {
-                          if (!isAuth) {
-                            e.preventDefault();
-                            setLoginOpen(true);
-                          }
-                        }}
-                        type="submit"
-                        isLoading={isLoading}
-                        variant="contained"
-                      >
-                        <Send sx={{ mt: 0.5, mb: -0.5, mx: 2 }} />
-                      </LoadingButton>
-                    </Box>
-                  </MyCard>
-                </Stack>
-              </Stack>
-            </Form>
-          </Stack>
+          <CommentsSection isAuth={isAuth} setLoginOpen={setLoginOpen} recipe={recipe} />
         </Grid>
       </Grid>
 

@@ -62,6 +62,7 @@ export type Recipe = RecipeShortInfo & {
 };
 
 export type MetaType = {
+  count?: number;
   page: number;
   limit: number;
   totalPages: number;

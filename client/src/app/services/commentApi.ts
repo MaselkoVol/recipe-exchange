@@ -10,7 +10,7 @@ export const commentApi = api.injectEndpoints({
         body: data, // Changed "data" to "body"
       }),
     }),
-    getRecipes: builder.query<{ data: Comment[]; count: number; meta: MetaType }, string>({
+    getRecipes: builder.query<{ data: { userComments: Comment[]; otherComments: Comment[] }; meta: MetaType }, string>({
       query: (recipeId) => ({
         url: `/recipes/${recipeId}/comments`,
       }),

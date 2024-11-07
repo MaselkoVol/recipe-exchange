@@ -38,7 +38,6 @@ const SelectFilters = ({ resetParams, setParams, variant = "block", sx, buttonSx
   useEffect(() => {
     const modifiedTags = selectedTags.map((tag) => tag.id);
     const joinedTags = modifiedTags.join(",");
-    console.log(joinedTags);
     setParams({ tags: joinedTags, page: "1" }, true);
   }, [selectedTags]);
   useEffect(() => {

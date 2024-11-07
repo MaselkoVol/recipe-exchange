@@ -67,48 +67,75 @@ const CommentController = {
   },
   getRecipeComments: async (req, res) => {
     const { id: recipeId } = req.params;
+    const user = req.user;
     const commentsPage = parseInt(req.query["comments-page"]) || 1;
     const commentsLimit = parseInt(req.query["comments-limit"]) || 10;
-    try {
-      const comments = await prisma.recipeComment.findMany({
-        where: { recipeId },
-        skip: (commentsPage - 1) * commentsLimit,
-        take: commentsLimit,
-        orderBy: { rating: "desc" },
-        include: {
-          images: {
-            select: {
-              id: true,
-              imageUrl: true,
-            },
-          },
-          user: {
-            select: {
-              id: true,
-              email: true,
-              name: true,
-              avatarUrl: true,
-            },
+
+    const userQueryParameters = {
+      orderBy: { createdAt: "desc" },
+      include: {
+        images: {
+          select: {
+            id: true,
+            imageUrl: true,
           },
         },
-      });
-      comments.forEach((comment) => {
-        if (comment.images) {
-          comment.images = comment.images.map((image) => ({
-            ...image,
-            imageUrl: commentImagesNameToUrl(image.imageUrl),
-          }));
-        }
-        if (comment.user.avatarUrl) {
-          comment.user.avatarUrl = userAvatarNameToUrl(comment.user.avatarUrl);
-        }
-      });
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            avatarUrl: true,
+          },
+        },
+      },
+    };
+    const queryParameters = {
+      ...userQueryParameters,
+      skip: (commentsPage - 1) * commentsLimit,
+      take: commentsLimit,
+      orderBy: { rating: "desc" },
+    };
+    try {
+      let comments = [];
+      let userComments = [];
+      if (!user) {
+        comments = await prisma.recipeComment.findMany({ where: { recipeId }, ...queryParameters });
+      } else {
+        comments = await prisma.recipeComment.findMany({
+          where: { AND: [{ recipeId }, { userId: { not: user.id } }] },
+          ...queryParameters,
+        });
+        userComments = await prisma.recipeComment.findMany({
+          where: { AND: [{ recipeId }, { userId: user.id }] },
+          orderBy: { createdAt: "desc" },
+          ...userQueryParameters,
+        });
+      }
+      const prepareComments = (comments) => {
+        comments.forEach((comment) => {
+          if (comment.images) {
+            comment.images = comment.images.map((image) => ({
+              ...image,
+              imageUrl: commentImagesNameToUrl(image.imageUrl),
+            }));
+          }
+          if (comment.user.avatarUrl) {
+            comment.user.avatarUrl = userAvatarNameToUrl(comment.user.avatarUrl);
+          }
+        });
+      };
+      prepareComments(comments);
+      prepareComments(userComments);
       const totalComments = await prisma.recipeComment.count({ where: { recipeId } });
       comments;
       const finalResult = {
-        data: comments,
-        count: totalComments,
+        data: {
+          userComments: userComments,
+          otherComments: comments,
+        },
         meta: {
+          count: totalComments,
           commentsPage,
           commentsLimit,
           totalPages: Math.ceil(totalComments / commentsLimit),
