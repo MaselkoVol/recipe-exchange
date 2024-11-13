@@ -44,11 +44,7 @@ export function useOptimisticButton({
   }, [isActiveError]);
 
   useEffect(() => {
-    if (!btnDependencies || !toggleBtnError) return;
-    const timeoutId = setTimeout(() => {
-      getIsActive(btnDependencies);
-    }, debounceTime);
-    return () => clearTimeout(timeoutId);
+   setBtnValue(false);
   }, [toggleBtnError]);
 
   useEffect(() => {

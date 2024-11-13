@@ -1,5 +1,5 @@
-import { Box, Stack, Typography } from "@mui/material";
-import React, { useState } from "react";
+import { Avatar, Box, CircularProgress, IconButton, Stack, Typography } from "@mui/material";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Form from "../../components/UI/Form";
 import { useColors } from "../../hooks/useColors";
 import TextFieldMultiline from "../../components/UI/input/TextFieldMultiline";
@@ -8,13 +8,16 @@ import MultipleImagesSelect from "../createRecipe/MultipleImagesSelect";
 import MyButton from "../../components/UI/MyButton";
 import LoadingButton from "../../components/UI/LoadingButton";
 import MyCard from "../../components/UI/MyCard";
-import { Recipe } from "../../app/types";
-import { useCreateCommentMutation } from "../../app/services/commentApi";
+import { Comment, Recipe } from "../../app/types";
+import { useCreateCommentMutation, useLazyGetCommentsQuery } from "../../app/services/commentApi";
 import { useDispatch } from "react-redux";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { addToSnackBar } from "../../features/snackbar/snackbarSlice";
-import UnregisteredDialog from "../../components/UnregisteredDialog";
-import { Send } from "@mui/icons-material";
+import { Send, ThumbDownOffAlt, ThumbUpOffAlt } from "@mui/icons-material";
+import ImageFullscreen from "../../components/UI/ImageFullscreen";
+import UserComment from "./UserComment";
+import { motion } from "framer-motion";
+import LoadingPage from "../loadingPage/LoadingPage";
 
 type CommentForm = {
   text: string;
@@ -66,6 +69,31 @@ const CommentsSection = ({ recipe, isAuth, setLoginOpen }: Props) => {
       );
     }
   };
+
+  const [selectedURL, setSelectedURL] = useState<string | null>(null);
+  const [totalPages, setTotalPages] = useState(999);
+  const [page, setPage] = useState(1);
+
+  const [userComments, setUserComments] = useState<Comment[]>([]);
+  const [otherComments, setOtherComments] = useState<Comment[]>([]);
+  const [getComments, { data, isLoading: isCommentsLoading, isError: isCommentsError }] = useLazyGetCommentsQuery();
+
+  useEffect(() => {
+    if (!data) return;
+    const comments = data.comments;
+    if (userComments.length === 0 && comments.userComments.length > 0) {
+      setUserComments(comments.userComments);
+    }
+    setOtherComments([...otherComments, ...comments.otherComments]);
+    setTotalPages(data.meta.totalPages);
+  }, [data]);
+
+  const getCommentsWrapper = () => {
+    if (!recipe?.id) return;
+    getComments({ recipeId: recipe.id, "comments-limit": "10", "comments-page": page.toString() });
+    setPage(page + 1);
+  };
+
   const colors = useColors();
   return (
     <Stack spacing={4} sx={{ pt: 2 }}>
@@ -137,6 +165,20 @@ const CommentsSection = ({ recipe, isAuth, setLoginOpen }: Props) => {
           </Stack>
         </Stack>
       </Form>
+
+      {userComments.length > 0 &&
+        userComments.map((comment, idx) => <UserComment key={idx} comment={comment} setSelectedURL={setSelectedURL} />)}
+
+      {otherComments.length > 0 &&
+        otherComments.map((comment, idx) => (
+          <UserComment key={idx} comment={comment} setSelectedURL={setSelectedURL} />
+        ))}
+      {totalPages >= page && (
+        <motion.div onViewportEnter={getCommentsWrapper}>
+          <LoadingPage sx={{ my: 5, mx: "auto" }} />
+        </motion.div>
+      )}
+      <ImageFullscreen selectedURL={selectedURL} setSelectedURL={setSelectedURL} />
     </Stack>
   );
 };

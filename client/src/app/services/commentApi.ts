@@ -1,4 +1,4 @@
-import { MetaType } from "../types";
+import { Comment, MetaType } from "../types";
 import { api } from "./api";
 
 export const commentApi = api.injectEndpoints({
@@ -10,13 +10,17 @@ export const commentApi = api.injectEndpoints({
         body: data, // Changed "data" to "body"
       }),
     }),
-    getRecipes: builder.query<{ data: { userComments: Comment[]; otherComments: Comment[] }; meta: MetaType }, string>({
-      query: (recipeId) => ({
-        url: `/recipes/${recipeId}/comments`,
+    getComments: builder.query<
+      { comments: { userComments: Comment[]; otherComments: Comment[] }; meta: MetaType },
+      { recipeId: string; "comments-page": string; "comments-limit": string }
+    >({
+      query: (data) => ({
+        url: `/recipes/${data.recipeId}/comments`,
+        params: { "comments-page": data["comments-page"], "comments-limit": data["comments-limit"] },
       }),
     }),
   }),
 });
 
-export const { createComment, getRecipes } = commentApi.endpoints;
-export const { useCreateCommentMutation, useGetRecipesQuery, useLazyGetRecipesQuery } = commentApi;
+export const { createComment, getComments } = commentApi.endpoints;
+export const { useCreateCommentMutation, useGetCommentsQuery, useLazyGetCommentsQuery } = commentApi;

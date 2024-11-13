@@ -100,6 +100,7 @@ export type UserFollowers = {
 };
 
 export type Comment = {
+  id: string;
   rating: number;
   text: string;
   createdAt: string;

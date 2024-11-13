@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 export type StringParamsType = {
@@ -12,7 +12,6 @@ export type ResetParamsType = (replace: boolean) => void;
 
 export const useControlParams = (paramStartValues: StringParamsType) => {
   const [searchParams, setSearchParams] = useSearchParams();
-
   // get params from url, and if there is no such a value in there, get it from paramStartValues
   const getParams: GetParamsType = () => {
     const paramObj: StringParamsType = {};
@@ -21,6 +20,10 @@ export const useControlParams = (paramStartValues: StringParamsType) => {
     }
     return paramObj;
   };
+  const [query, setQuery] = useState<StringParamsType>(getParams());
+  useEffect(() => {
+    setQuery(getParams());
+  }, [searchParams]);
 
   // if the url already has all of the parameters, do nothing; otherwise, set the absent parameters in the url
   const initiateParams: InitiateParamsType = () => {
