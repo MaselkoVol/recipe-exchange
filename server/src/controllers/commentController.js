@@ -128,9 +128,8 @@ const CommentController = {
       prepareComments(comments);
       prepareComments(userComments);
       const totalComments = await prisma.recipeComment.count({ where: { recipeId } });
-      comments;
       const finalResult = {
-        data: {
+        comments: {
           userComments: userComments,
           otherComments: comments,
         },

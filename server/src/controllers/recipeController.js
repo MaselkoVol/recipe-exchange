@@ -102,7 +102,6 @@ const RecipeController = {
     }
   },
   getAllRecipes: async (req, res) => {
-    console.log(req.query);
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const search = req.query.search || "";
