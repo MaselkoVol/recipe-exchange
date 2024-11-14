@@ -1,5 +1,5 @@
 import { Box, keyframes, styled, SxProps } from "@mui/material";
-import React from "react";
+import React, { forwardRef } from "react";
 import { useColors } from "../../hooks/useColors";
 
 type Props = {
@@ -41,12 +41,12 @@ const CustomLoader = styled("div")(() => {
   };
 });
 
-const LoadingPage = ({ sx }: Props) => {
+const LoadingPage = forwardRef<HTMLDivElement, Props>(({ sx }, ref) => {
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", flex: 1, ...sx }}>
+    <Box ref={ref} sx={{ display: "flex", justifyContent: "center", alignItems: "center", flex: 1, ...sx }}>
       <CustomLoader />
     </Box>
   );
-};
+});
 
 export default LoadingPage;

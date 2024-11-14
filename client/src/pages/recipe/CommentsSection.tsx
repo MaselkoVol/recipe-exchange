@@ -72,12 +72,31 @@ const CommentsSection = ({ recipe, isAuth, setLoginOpen }: Props) => {
 
   const [selectedURL, setSelectedURL] = useState<string | null>(null);
   const [totalPages, setTotalPages] = useState(999);
-  const [page, setPage] = useState(1);
+  const page = useRef(1);
 
   const [userComments, setUserComments] = useState<Comment[]>([]);
   const [otherComments, setOtherComments] = useState<Comment[]>([]);
   const [getComments, { data, isLoading: isCommentsLoading, isError: isCommentsError }] = useLazyGetCommentsQuery();
 
+  const getCommentsWrapper = () => {
+    if (!recipe?.id) return;
+    getComments({ recipeId: recipe.id, "comments-limit": "10", "comments-page": page.current.toString() });
+    page.current += 1;
+  };
+
+  const lastElementRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!lastElementRef.current) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        getCommentsWrapper();
+      }
+    });
+    observer.observe(lastElementRef.current);
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
   useEffect(() => {
     if (!data) return;
     const comments = data.comments;
@@ -87,12 +106,6 @@ const CommentsSection = ({ recipe, isAuth, setLoginOpen }: Props) => {
     setOtherComments([...otherComments, ...comments.otherComments]);
     setTotalPages(data.meta.totalPages);
   }, [data]);
-
-  const getCommentsWrapper = () => {
-    if (!recipe?.id) return;
-    getComments({ recipeId: recipe.id, "comments-limit": "10", "comments-page": page.toString() });
-    setPage(page + 1);
-  };
 
   const colors = useColors();
   return (
@@ -165,7 +178,7 @@ const CommentsSection = ({ recipe, isAuth, setLoginOpen }: Props) => {
           </Stack>
         </Stack>
       </Form>
-
+      {userComments.length === 0 && otherComments.length === 0 && <Typography variant="h6">No comments yet</Typography>}
       {userComments.length > 0 &&
         userComments.map((comment, idx) => <UserComment key={idx} comment={comment} setSelectedURL={setSelectedURL} />)}
 
@@ -173,7 +186,8 @@ const CommentsSection = ({ recipe, isAuth, setLoginOpen }: Props) => {
         otherComments.map((comment, idx) => (
           <UserComment key={idx} comment={comment} setSelectedURL={setSelectedURL} />
         ))}
-      {totalPages >= page && (
+
+      {totalPages >= page.current && (
         <motion.div onViewportEnter={getCommentsWrapper}>
           <LoadingPage sx={{ my: 5, mx: "auto" }} />
         </motion.div>
