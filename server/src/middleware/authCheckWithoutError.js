@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 
 const authCheckWithoutError = (req, res, next) => {
   const authHeader = req.headers.Authorization || req.headers.authorization;
-  if (!authHeader.startsWith("Bearer ")) {
+  if (!authHeader?.startsWith("Bearer ")) {
     req.user = null;
     return next();
   }

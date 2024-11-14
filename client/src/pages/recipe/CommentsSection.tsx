@@ -1,5 +1,5 @@
-import { Avatar, Box, CircularProgress, IconButton, Stack, Typography } from "@mui/material";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Box, Stack, Typography } from "@mui/material";
+import React, { useEffect, useRef, useState } from "react";
 import Form from "../../components/UI/Form";
 import { useColors } from "../../hooks/useColors";
 import TextFieldMultiline from "../../components/UI/input/TextFieldMultiline";
@@ -13,7 +13,7 @@ import { useCreateCommentMutation, useLazyGetCommentsQuery } from "../../app/ser
 import { useDispatch } from "react-redux";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { addToSnackBar } from "../../features/snackbar/snackbarSlice";
-import { Send, ThumbDownOffAlt, ThumbUpOffAlt } from "@mui/icons-material";
+import { Send } from "@mui/icons-material";
 import ImageFullscreen from "../../components/UI/ImageFullscreen";
 import UserComment from "./UserComment";
 import { motion } from "framer-motion";
