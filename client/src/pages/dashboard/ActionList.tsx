@@ -60,24 +60,6 @@ const ActionList = ({ sx, user }: Props) => {
           <Bookmark sx={{ mr: 1 }} /> Favorite recipes
         </ClientNavLink>
       </CustomListItem>
-
-      <CustomListItem>
-        <ClientNavLink sx={{ fontSize: "1.2rem", display: "flex", alignItems: "center", gap: 0.5 }} to="followers">
-          <Typography variant="h5" component={"span"} sx={{ mx: 1 }}>
-            {user?.followersCount || 0}
-          </Typography>{" "}
-          Followers
-        </ClientNavLink>
-      </CustomListItem>
-
-      <CustomListItem>
-        <ClientNavLink sx={{ fontSize: "1.2rem", display: "flex", alignItems: "center", gap: 0.5 }} to="following">
-          <Typography variant="h5" component={"span"} sx={{ mx: 1 }}>
-            {user?.followingCount || 0}
-          </Typography>{" "}
-          Following
-        </ClientNavLink>
-      </CustomListItem>
     </List>
   );
 };

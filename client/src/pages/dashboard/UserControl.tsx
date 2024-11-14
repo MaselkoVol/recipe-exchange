@@ -48,73 +48,57 @@ const UserControl = ({ user }: Props) => {
     <Box
       sx={{
         display: "flex",
-        flexDirection: "column",
         gap: 1,
-        justifyContent: "flex-end",
-        width: "100%",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
       }}
     >
-      <UserInfo avatarSize={40} user={user} />
+      <UserInfo hideEmail avatarSize={40} user={user} />
 
       <Box
         sx={{
+          p: 1,
+          bgcolor: colors.bg,
+          borderRadius: 2,
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-end",
-          gap: 2,
-          flexWrap: "wrap",
+          maxWidth: { xs: "fit-content", sm: "fit-content", xl: "100%" },
+          justifyContent: "flex-start",
+          gap: 1,
+          alignItems: "center",
         }}
       >
-        <Box
-          sx={{
-            p: 1,
-            bgcolor: colors.bg,
-            borderRadius: 2,
-            display: "flex",
-            maxWidth: { xs: "fit-content", sm: "fit-content", xl: "100%" },
-            justifyContent: "flex-start",
-            gap: 1,
-            alignItems: "center",
-          }}
-        >
-          <IconButton>
-            <Edit />
-          </IconButton>
+        <IconButton>
+          <Edit />
+        </IconButton>
 
-          <IconButton onClick={toggleLogout}>
-            <Logout sx={{ position: "relative", left: 2 }} />
-          </IconButton>
-          <Dialog
-            sx={{ mx: "auto", maxWidth: 400 }}
-            open={isLogoutOpen}
-            onClose={toggleLogout}
-            aria-labelledby="logout"
-          >
-            <DialogTitle>Log out </DialogTitle>
-            <DialogContent>
-              <DialogContentText>Are you sure you want to log out from your account?</DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <MyButton color="info" sx={{ m: 1 }} onClick={toggleLogout}>
-                Cancel
-              </MyButton>
-              <LoadingButton
-                isLoading={isLogoutLoading}
-                sx={{ m: 1 }}
-                variant="outlined"
-                color="error"
-                onClick={handleLogout}
-                autoFocus
-              >
-                Log out
-              </LoadingButton>
-            </DialogActions>
-          </Dialog>
+        <IconButton onClick={toggleLogout}>
+          <Logout sx={{ position: "relative", left: 2 }} />
+        </IconButton>
+        <Dialog sx={{ mx: "auto", maxWidth: 400 }} open={isLogoutOpen} onClose={toggleLogout} aria-labelledby="logout">
+          <DialogTitle>Log out </DialogTitle>
+          <DialogContent>
+            <DialogContentText>Are you sure you want to log out from your account?</DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <MyButton color="info" sx={{ m: 1 }} onClick={toggleLogout}>
+              Cancel
+            </MyButton>
+            <LoadingButton
+              isLoading={isLogoutLoading}
+              sx={{ m: 1 }}
+              variant="outlined"
+              color="error"
+              onClick={handleLogout}
+              autoFocus
+            >
+              Log out
+            </LoadingButton>
+          </DialogActions>
+        </Dialog>
 
-          <IconButton color="error">
-            <Delete />
-          </IconButton>
-        </Box>
+        <IconButton color="error">
+          <Delete />
+        </IconButton>
       </Box>
     </Box>
   );

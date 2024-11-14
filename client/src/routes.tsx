@@ -14,6 +14,7 @@ const Recipe = lazy(() => import("./pages/recipe/Recipe"));
 const FavoriteRecipes = lazy(() => import("./pages/favoriteRecipes/FavoriteRecipes"));
 const LikedRecipes = lazy(() => import("./pages/likedRecipes/LikedRecipes"));
 const AllRecipes = lazy(() => import("./pages/allRecipes/AllRecipes"));
+const UserPage = lazy(() => import("./pages/user/UserPage"));
 
 export const router = createBrowserRouter([
   {
@@ -102,17 +103,17 @@ export const router = createBrowserRouter([
                 path: "favorite/recipes",
                 element: <FavoriteRecipes />, // Same as above
               },
-              {
-                path: "followers",
-                element: <h1>hello</h1>,
-              },
-              {
-                path: "following",
-                element: <h1>hello</h1>,
-              },
             ],
           },
         ],
+      },
+      {
+        path: "users/:id",
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <UserPage />
+          </Suspense>
+        ),
       },
     ],
   },

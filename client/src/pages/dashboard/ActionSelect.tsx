@@ -64,14 +64,6 @@ const ActionSelect = ({ user, sx, variant }: Props) => {
       <MenuItem sx={{ fontSize: "1.2rem" }} value="favorite">
         Favorite recipes
       </MenuItem>
-
-      <MenuItem sx={{ fontSize: "1.2rem" }} value="followers">
-        Followers
-      </MenuItem>
-
-      <MenuItem sx={{ fontSize: "1.2rem" }} value="followers">
-        Following
-      </MenuItem>
     </MyTextField>
   );
 };

@@ -1,5 +1,5 @@
 import { useGetCurrentUserQuery } from "../../app/services/currentApi";
-import { Box, Container, Grid, MenuItem, Select, useTheme } from "@mui/material";
+import { Box, Container, Grid, MenuItem, Select, Stack, useTheme } from "@mui/material";
 import UserControl from "./UserControl";
 import { Outlet } from "react-router-dom";
 import ActionList from "./ActionList";
@@ -31,7 +31,10 @@ const Dashboard = (props: Props) => {
               top: 87,
             }}
           >
-            <UserControl user={user} />
+            <Stack spacing={4} sx={{ width: "100%", maxWidth: { xs: "100%", sm: 350, xl: "100%" } }}>
+              <UserControl user={user} />
+              <ActionList sx={{ display: { xs: "none", sm: "grid", xl: "none" } }} user={user} />
+            </Stack>
           </Box>
         </Grid>
       </Grid>

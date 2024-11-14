@@ -85,7 +85,7 @@ const UserController = {
           },
         ],
       };
-      const recipes = await prisma.recipe.findMany({
+      let recipes = await prisma.recipe.findMany({
         where: searchQuery,
         // get info from recipe
         select: {
@@ -93,13 +93,11 @@ const UserController = {
           title: true,
           ingredients: true,
           mainImageUrl: true,
-          createdAt: true,
           tags: true,
-          views: true,
           createdAt: true,
           // get likes count
           _count: {
-            select: { likes: true }, // Count the number of likes for each recipe
+            select: { likes: true, views: true }, // Count the number of likes for each recipe
           },
         },
         skip: (page - 1) * limit,
@@ -107,13 +105,16 @@ const UserController = {
         orderBy: { createdAt: "desc" },
       });
 
-      recipes.forEach((recipe) => {
+      recipes = recipes.map((recipe) => {
         if (recipe.mainImageUrl) {
           recipe.mainImageUrl = recipeMainImageNameToUrl(recipe.mainImageUrl);
         }
         const likesCount = recipe._count.likes;
+        const views = recipe._count.views;
         delete recipe._count;
         recipe.likesCount = likesCount;
+        recipe.views = views;
+        return recipe;
       });
 
       const recipesCount = await prisma.recipe.count({ where: searchQuery });

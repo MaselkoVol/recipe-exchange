@@ -195,7 +195,7 @@ const Recipe = (props: Props) => {
               <Box>created: {formatDate(recipe.createdAt)}</Box>
             </MyCard>
             <Box sx={{ display: "flex", gap: 1, pl: 4, flexGrow: 1, alignItems: "center" }}>
-              <ClientLink sx={{ ml: "auto" }} to={`users/${recipe.author.id}`}>
+              <ClientLink sx={{ ml: "auto" }} to={`/users/${recipe.author.id}`}>
                 <UserInfo reversed avatarSize={40} hideEmail user={recipe.author} />
               </ClientLink>
             </Box>
