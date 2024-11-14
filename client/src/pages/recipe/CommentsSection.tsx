@@ -9,7 +9,11 @@ import MyButton from "../../components/UI/MyButton";
 import LoadingButton from "../../components/UI/LoadingButton";
 import MyCard from "../../components/UI/MyCard";
 import { Comment, Recipe } from "../../app/types";
-import { useCreateCommentMutation, useLazyGetCommentsQuery } from "../../app/services/commentApi";
+import {
+  useCreateCommentMutation,
+  useDeleteCommentMutation,
+  useLazyGetCommentsQuery,
+} from "../../app/services/commentApi";
 import { useDispatch } from "react-redux";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { addToSnackBar } from "../../features/snackbar/snackbarSlice";
@@ -42,6 +46,20 @@ const CommentsSection = ({ recipe, isAuth, setLoginOpen }: Props) => {
     formState: { errors, isSubmitting },
   } = useForm<CommentForm>();
 
+  const [selectedURL, setSelectedURL] = useState<string | null>(null);
+  const [totalPages, setTotalPages] = useState(999);
+  const page = useRef(1);
+
+  const [userComments, setUserComments] = useState<Comment[]>([]);
+  const [otherComments, setOtherComments] = useState<Comment[]>([]);
+  const [getComments, { data, isLoading: isCommentsLoading, isError: isCommentsError }] = useLazyGetCommentsQuery();
+
+  const getCommentsWrapper = () => {
+    if (!recipe?.id) return;
+    getComments({ recipeId: recipe.id, "comments-limit": "10", "comments-page": page.current.toString() });
+    page.current += 1;
+  };
+
   const onSubmit: SubmitHandler<CommentForm> = async (data) => {
     reset();
     setSelectedComemntImages(null);
@@ -64,24 +82,11 @@ const CommentsSection = ({ recipe, isAuth, setLoginOpen }: Props) => {
         addToSnackBar({ livingTime: 2000, severity: "error", text: "Something went wrong during comment creation" })
       );
     } else {
+      getCommentsWrapper();
       dispatch(
         addToSnackBar({ livingTime: 2000, severity: "success", text: "You have successfully created comment." })
       );
     }
-  };
-
-  const [selectedURL, setSelectedURL] = useState<string | null>(null);
-  const [totalPages, setTotalPages] = useState(999);
-  const page = useRef(1);
-
-  const [userComments, setUserComments] = useState<Comment[]>([]);
-  const [otherComments, setOtherComments] = useState<Comment[]>([]);
-  const [getComments, { data, isLoading: isCommentsLoading, isError: isCommentsError }] = useLazyGetCommentsQuery();
-
-  const getCommentsWrapper = () => {
-    if (!recipe?.id) return;
-    getComments({ recipeId: recipe.id, "comments-limit": "10", "comments-page": page.current.toString() });
-    page.current += 1;
   };
 
   const lastElementRef = useRef<HTMLDivElement | null>(null);
@@ -100,12 +105,26 @@ const CommentsSection = ({ recipe, isAuth, setLoginOpen }: Props) => {
   useEffect(() => {
     if (!data) return;
     const comments = data.comments;
-    if (userComments.length === 0 && comments.userComments.length > 0) {
-      setUserComments(comments.userComments);
-    }
+    setUserComments(comments.userComments);
     setOtherComments([...otherComments, ...comments.otherComments]);
     setTotalPages(data.meta.totalPages);
   }, [data]);
+
+  // callback to delete the comment
+  const [deleteComment, { isLoading: isDeleteLoading, isError: isDeleteError }] = useDeleteCommentMutation();
+  const handleDelete = async (comment: Comment) => {
+    if (!recipe?.id || !comment.id) return;
+    const res = await deleteComment({ recipeId: recipe.id, commentId: comment.id });
+    if (res.error) {
+      dispatch(addToSnackBar({ livingTime: 2000, severity: "error", text: "Sorry, we couldn't delete your comment." }));
+    } else {
+      getCommentsWrapper();
+      dispatch(
+        addToSnackBar({ livingTime: 2000, severity: "success", text: "You have successfully deleted your comment." })
+      );
+    }
+    getCommentsWrapper();
+  };
 
   const colors = useColors();
   return (
@@ -180,16 +199,23 @@ const CommentsSection = ({ recipe, isAuth, setLoginOpen }: Props) => {
       </Form>
       {userComments.length === 0 && otherComments.length === 0 && <Typography variant="h6">No comments yet</Typography>}
       {userComments.length > 0 &&
-        userComments.map((comment, idx) => <UserComment key={idx} comment={comment} setSelectedURL={setSelectedURL} />)}
+        userComments.map((comment, idx) => (
+          <UserComment
+            recipe={recipe}
+            getComments={getCommentsWrapper}
+            key={idx}
+            comment={comment}
+            setSelectedURL={setSelectedURL}
+          />
+        ))}
 
       {otherComments.length > 0 &&
         otherComments.map((comment, idx) => (
           <UserComment key={idx} comment={comment} setSelectedURL={setSelectedURL} />
         ))}
-
       {totalPages >= page.current && (
         <motion.div onViewportEnter={getCommentsWrapper}>
-          <LoadingPage sx={{ my: 5, mx: "auto" }} />
+          <LoadingPage sx={{ my: 2, mx: "auto" }} />
         </motion.div>
       )}
       <ImageFullscreen selectedURL={selectedURL} setSelectedURL={setSelectedURL} />

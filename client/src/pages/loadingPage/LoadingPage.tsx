@@ -4,16 +4,17 @@ import { useColors } from "../../hooks/useColors";
 
 type Props = {
   sx?: SxProps;
+  size?: number;
 };
 
 const l2 = keyframes`
-  100% {box-shadow: 0 0 0 40px #0000}
+  100% {box-shadow: 0 0 0 20px #0000}
 `;
 
-const CustomLoader = styled("div")(() => {
+const CustomLoader = styled("div")(({ size = 20 }: Props) => {
   const colors = useColors();
   return {
-    width: 20,
+    width: size,
     aspectRatio: 1,
     borderRadius: "50%",
     background: colors.palette.primary.main,
@@ -41,10 +42,10 @@ const CustomLoader = styled("div")(() => {
   };
 });
 
-const LoadingPage = forwardRef<HTMLDivElement, Props>(({ sx }, ref) => {
+const LoadingPage = forwardRef<HTMLDivElement, Props>(({ sx, size }, ref) => {
   return (
     <Box ref={ref} sx={{ display: "flex", justifyContent: "center", alignItems: "center", flex: 1, ...sx }}>
-      <CustomLoader />
+      <CustomLoader sx={{ width: size }} />
     </Box>
   );
 });

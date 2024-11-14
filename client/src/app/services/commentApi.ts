@@ -19,8 +19,15 @@ export const commentApi = api.injectEndpoints({
         params: { "comments-page": data["comments-page"], "comments-limit": data["comments-limit"] },
       }),
     }),
+    deleteComment: builder.mutation<void, { recipeId: string; commentId: string }>({
+      query: (data) => ({
+        url: `/recipes/${data.recipeId}/comments/${data.commentId}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
-export const { createComment, getComments } = commentApi.endpoints;
-export const { useCreateCommentMutation, useGetCommentsQuery, useLazyGetCommentsQuery } = commentApi;
+export const { createComment, getComments, deleteComment } = commentApi.endpoints;
+export const { useCreateCommentMutation, useGetCommentsQuery, useLazyGetCommentsQuery, useDeleteCommentMutation } =
+  commentApi;

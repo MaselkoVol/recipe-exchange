@@ -183,7 +183,7 @@ const CommentController = {
         await CommentController.deleteCommentChain(deleteTransaction, tx, foundComment.id);
       });
       deleteTransaction.complete();
-      return res.sendStatus(200);
+      return res.status(200).send({ message: "comment was deleted successfully" });
     } catch (error) {
       console.log(error);
       return internalServerError(res);
