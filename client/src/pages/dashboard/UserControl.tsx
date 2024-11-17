@@ -21,6 +21,8 @@ import ActionSelect from "./ActionSelect";
 import { addToSnackBar } from "../../features/snackbar/snackbarSlice";
 import LoadingButton from "../../components/UI/LoadingButton";
 import LoadingPage from "../loadingPage/LoadingPage";
+import UpdateUserModal from "./UpdateUserModal";
+import DeleteAccountModal from "./DeleteAccountModal";
 
 type Props = {
   user: User | undefined;
@@ -29,6 +31,8 @@ type Props = {
 const UserControl = ({ user }: Props) => {
   const dispatch = useDispatch();
   const colors = useColors();
+  const [updateOpen, setUpdateOpen] = useState(false);
+  const [delOpen, setDelOpen] = useState(false);
 
   const [logout, { isLoading: isLogoutLoading }] = useLogoutMutation();
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
@@ -67,10 +71,10 @@ const UserControl = ({ user }: Props) => {
           alignItems: "center",
         }}
       >
-        <IconButton>
+        <IconButton onClick={() => setUpdateOpen(true)}>
           <Edit />
         </IconButton>
-
+        <UpdateUserModal user={user} open={updateOpen} setIsOpen={setUpdateOpen} />
         <IconButton onClick={toggleLogout}>
           <Logout sx={{ position: "relative", left: 2 }} />
         </IconButton>
@@ -96,9 +100,10 @@ const UserControl = ({ user }: Props) => {
           </DialogActions>
         </Dialog>
 
-        <IconButton color="error">
+        <IconButton onClick={() => setDelOpen(true)} color="error">
           <Delete />
         </IconButton>
+        <DeleteAccountModal open={delOpen} setIsOpen={setDelOpen} />
       </Box>
     </Box>
   );

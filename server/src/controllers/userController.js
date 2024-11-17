@@ -139,9 +139,9 @@ const UserController = {
       include: { recipes: true },
     });
     if (!foundUser) return;
-    deleteTransaction.add(getFilePath("public", "uploads", "users", foundUser.avatarUrl));
+    deleteTransaction.add(getFilePath("public", "uploads", "current", foundUser.avatarUrl));
     await tx.follows.deleteMany({ where: { OR: [{ followerId: userId }, { followingId: userId }] } });
-    await tx.recipeViews.deleteMany({ where: { userId } });
+    await tx.recipeView.deleteMany({ where: { userId } });
     await tx.likedRecipe.deleteMany({ where: { userId } });
     await tx.favoriteRecipe.deleteMany({ where: { userId } });
     await tx.message.deleteMany({ where: { OR: [{ receiverId: userId }, { senderId: userId }] } });

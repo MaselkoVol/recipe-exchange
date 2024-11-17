@@ -133,7 +133,9 @@ const Recipe = (props: Props) => {
               sx={{
                 order: { xs: 1, md: 2 },
                 position: { xs: "flex", md: "sticky" },
-                top: 87,
+                top: 82,
+                maxHeight: "calc(100vh - 100px)",
+                overflow: "auto",
                 left: 0,
                 height: "auto",
                 alignSelf: "start",

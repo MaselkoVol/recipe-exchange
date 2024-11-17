@@ -80,7 +80,6 @@ const TextFieldMultiline = forwardRef<HTMLTextAreaElement, Props>(
       if (textarea.scrollHeight > textarea.clientHeight) {
         while (true) {
           textAreaRef.current.rows += 1;
-          console.log("add");
           if (textarea.scrollHeight - textarea.clientHeight < 10 || textarea.scrollHeight < textarea.clientHeight)
             return;
         }
@@ -89,7 +88,6 @@ const TextFieldMultiline = forwardRef<HTMLTextAreaElement, Props>(
           if (rows && rows >= textarea.rows) return;
           if (textarea.rows === 1) return;
           textAreaRef.current.rows -= 1;
-          console.log("remove");
           if (textarea.scrollHeight > textarea.clientHeight) {
             textAreaRef.current.rows += 1;
             return;

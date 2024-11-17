@@ -17,7 +17,6 @@ type Props = {};
 const links = [
   ["Home", "/"],
   ["Find recipes", "/recipes"],
-  ["About", "/about"],
 ];
 
 const CustomAppBar = styled(AppBar)`

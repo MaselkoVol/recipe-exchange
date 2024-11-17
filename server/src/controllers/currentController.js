@@ -5,6 +5,7 @@ const { internalServerError, userNotFound } = require("../utils/errorHanders");
 const { deleteFileIfExists } = require("../utils/deleteFileIfExists");
 const { getFilePath } = require("../utils/getFilePath");
 const { userAvatarNameToUrl, recipeMainImageNameToUrl } = require("../utils/imageNamesToUrl");
+const bcrypt = require("bcrypt");
 
 const CurrentController = {
   // @desc		Get current user
@@ -127,8 +128,9 @@ const CurrentController = {
   // @desc		Update user by id
   // @route		PUT /api/users/:id
   updateUser: async (req, res) => {
-    const { name, email } = req.body;
+    const { name } = req.body;
     const userId = req.user.id;
+    console.log(name);
 
     let avatar = null;
     if (req.file) {
@@ -136,16 +138,6 @@ const CurrentController = {
     }
 
     try {
-      if (email) {
-        const userWithEmail = await prisma.user.findUnique({
-          where: { email },
-        });
-
-        if (userWithEmail && userWithEmail.id !== userId) {
-          deleteFileIfExists(avatar);
-          return res.status(409).send({ error: "This email is already registered." });
-        }
-      }
       const user = await prisma.user.findUnique({ where: { id: userId } });
       if (!user) {
         deleteFileIfExists(avatar);
@@ -156,13 +148,13 @@ const CurrentController = {
       // soft delete of files
       const deleteTransaction = createDeleteTransaction();
       if (avatar && user.avatarUrl) {
-        deleteTransaction.add(getFilePath("public", "uploads", "users", user.avatarUrl));
+        console.log(user.avatarUrl);
+        deleteTransaction.add(getFilePath("public", "uploads", "current", user.avatarUrl));
         filename = avatar.filename;
       }
       const updatedUser = await prisma.user.update({
         where: { id: user.id },
         data: {
-          email: email || undefined,
           name: name || undefined,
           avatarUrl: filename || undefined,
         },
@@ -177,13 +169,24 @@ const CurrentController = {
   },
   deleteUser: async (req, res) => {
     const { id } = req.user;
+    const { password } = req.body;
     try {
+      // to delete accaunt, user has to enter his password
+      if (!password) return res.status(403).send({ error: "you can't delete accaunt without password" });
+      const user = await prisma.user.findUnique({ where: { id } });
+      if (!user) {
+        return res.status(404).send({ error: "user not found" });
+      }
+      const valid = await bcrypt.compare(password, user.password);
+      if (!valid) {
+        return res.status(401).send({ error: "Invalid password" });
+      }
       const deleteTransaction = createDeleteTransaction();
       await prisma.$transaction(async (tx) => {
         await UserController.deleteUserChain(deleteTransaction, tx, id);
       });
       deleteTransaction.complete();
-      return res.sendStatus(200);
+      return res.status(204).send({ message: "You successfully deleted account" });
     } catch (error) {
       console.log(error);
       return internalServerError(res);

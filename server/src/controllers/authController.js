@@ -32,7 +32,7 @@ const AuthController = {
       const avatar = jdenticon.toPng(name, 200);
 
       const filename = "avatar-" + Date.now() + "-" + Math.round(Math.random() * 1e9) + ".png";
-      avatarPath = getFilePath("public", "uploads", "users", filename);
+      avatarPath = getFilePath("public", "uploads", "current", filename);
 
       fs.writeFile(avatarPath, avatar);
 

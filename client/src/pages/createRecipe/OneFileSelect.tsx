@@ -13,16 +13,19 @@ type Props = {
   allowedTypes?: string;
   inputText: string;
   startImageUrl?: string;
+  compressTo?: [number, number];
 };
 
-const OneFileSelect = ({ inputText, startImageUrl, allowedTypes, selectedFile, setSelectedFile }: Props) => {
+const OneFileSelect = ({
+  inputText,
+  compressTo = [1080, 720],
+  startImageUrl,
+  allowedTypes,
+  selectedFile,
+  setSelectedFile,
+}: Props) => {
   const colors = useColors();
   const [imageURL, setImageURL] = useState("");
-
-  useEffect(() => {
-    if (!startImageUrl) return;
-    setImageURL(startImageUrl);
-  }, [startImageUrl]);
 
   useEffect(() => {
     if (!selectedFile) {
@@ -39,24 +42,23 @@ const OneFileSelect = ({ inputText, startImageUrl, allowedTypes, selectedFile, s
       return;
     }
     try {
-      const resizedFile = await resizeImage(file, 1080, 720, "image/jpeg");
+      const resizedFile = await resizeImage(file, compressTo[0], compressTo[1], "image/jpeg");
       setSelectedFile(resizedFile);
     } catch (error) {
-      console.error(error);
       setSelectedFile(null);
       return;
     }
   };
   return (
     <Stack spacing={1}>
-      {imageURL && (
+      {(imageURL || startImageUrl) && (
         <Box
           sx={{
             mb: 1,
             border: `1px dashed ${colors.header}`,
           }}
         >
-          <Image src={imageURL} sx={{ width: "100%", aspectRatio: "3/2" }} />
+          <Image src={imageURL || startImageUrl || ""} sx={{ width: "100%", aspectRatio: "3/2" }} />
         </Box>
       )}
       <InputFile onChange={handleFileSelect} accept={allowedTypes || ""}>

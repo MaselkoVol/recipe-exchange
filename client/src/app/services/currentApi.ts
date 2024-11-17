@@ -17,13 +17,29 @@ export const currentApi = api.injectEndpoints({
         params: params,
       }),
     }),
+    updateCurrentUser: builder.mutation<void, FormData>({
+      query: (data) => ({
+        url: `/current`,
+        body: data,
+        method: "PUT",
+      }),
+    }),
+    deleteCurrentUser: builder.mutation<void, string>({
+      query: (password) => ({
+        url: `/current`,
+        method: "DELETE",
+        body: { password: password },
+      }),
+    }),
   }),
 });
 
-export const { getCurrentUser, getCurrentUserRecipes } = currentApi.endpoints;
+export const { getCurrentUser, getCurrentUserRecipes, updateCurrentUser, deleteCurrentUser } = currentApi.endpoints;
 export const {
   useGetCurrentUserQuery,
   useLazyGetCurrentUserQuery,
   useGetCurrentUserRecipesQuery,
   useLazyGetCurrentUserRecipesQuery,
+  useDeleteCurrentUserMutation,
+  useUpdateCurrentUserMutation,
 } = currentApi;
