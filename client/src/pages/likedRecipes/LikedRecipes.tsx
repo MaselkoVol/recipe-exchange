@@ -28,7 +28,6 @@ const LikedRecipes = (props: Props) => {
   const [getRecipes, { data, error, isFetching }] = useLazyGetCurrentUserLikedRecipesQuery();
   // recipes is the content that is shown on the page
   const [recipes, setRecipes] = useState<RecipeShortInfo[] | null>(null);
-  console.log(recipes);
   // meta is information for pagination.
   const [meta, setMeta] = useState<MetaType | null>(null);
   // indicates if user is writing or not

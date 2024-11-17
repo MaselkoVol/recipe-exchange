@@ -16,7 +16,7 @@ type Props = {};
 
 const links = [
   ["Home", "/"],
-  ["Find recipes", "/recipe"],
+  ["Find recipes", "/recipes"],
   ["About", "/about"],
 ];
 

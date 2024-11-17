@@ -215,7 +215,10 @@ const RecipeController = {
   updateRecipe: async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
-    let { title, text, ingredients, tagsId } = req.body;
+    let { title, text, ingredients, tagsId, imagesId } = req.body;
+    if (imagesId) {
+      imagesId = JSON.parse(imagesId);
+    }
     if (tagsId) {
       tagsId = JSON.parse(tagsId);
     }
@@ -243,21 +246,22 @@ const RecipeController = {
           text: text || undefined,
           ingredients: ingredients || undefined,
         };
-        // if user specified main image, soft delete previous image and pass new image to updateData
+        // if user specified main image, delete previous image and pass new image to updateData
         if (mainImage) {
           deleteTransaction.add(getFilePath("public", "uploads", "recipes", foundRecipe.mainImageUrl));
           updateData.mainImageUrl = mainImage.filename;
         }
 
         // if user specified images, soft delete previous images and pass new images to updateData
+        await tx.recipeImage.deleteMany({
+          where: { AND: [{ recipeId: foundRecipe.id }, { id: { notIn: imagesId } }] },
+        });
+        foundRecipe.images.forEach((image) => {
+          if (image.imageUrl && !imagesId.includes(image.id)) {
+            deleteTransaction.add(getFilePath("public", "uploads", "recipes", image.imageUrl));
+          }
+        });
         if (images) {
-          await tx.recipeImage.deleteMany({ where: { recipeId: foundRecipe.id } });
-          foundRecipe.images.forEach((image) => {
-            if (image.imageUrl) {
-              deleteTransaction.add(getFilePath("public", "uploads", "recipes", image.imageUrl));
-            }
-          });
-
           updateData.images = {
             create: images.map((image) => ({ imageUrl: image.filename })),
           };
@@ -311,7 +315,7 @@ const RecipeController = {
     if (!foundRecipe) {
       return;
     }
-    await tx.recipeViews.deleteMany({ where: { recipeId } });
+    await tx.recipeView.deleteMany({ where: { recipeId } });
     await tx.likedRecipe.deleteMany({ where: { recipeId } });
     await tx.favoriteRecipe.deleteMany({ where: { recipeId } });
     // delete main image file
@@ -355,7 +359,7 @@ const RecipeController = {
         await RecipeController.deleteRecipeChain(deleteTransaction, tx, foundRecipe.id);
       });
       deleteTransaction.complete();
-      return res.sendStatus(200);
+      return res.status(200).send({ message: "recipe was deleted successfully" });
     } catch (error) {
       console.log(error);
       return internalServerError(res);

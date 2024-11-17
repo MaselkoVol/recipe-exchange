@@ -86,6 +86,7 @@ const UserRecipes = (props: Props) => {
         query={query}
       />
       <RecipeList
+        editable
         animated
         error={error}
         isFetching={isFetching}

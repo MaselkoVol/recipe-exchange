@@ -12,11 +12,17 @@ type Props = {
   setSelectedFile: React.Dispatch<React.SetStateAction<File | null>>;
   allowedTypes?: string;
   inputText: string;
+  startImageUrl?: string;
 };
 
-const OneFileSelect = ({ inputText, allowedTypes, selectedFile, setSelectedFile }: Props) => {
+const OneFileSelect = ({ inputText, startImageUrl, allowedTypes, selectedFile, setSelectedFile }: Props) => {
   const colors = useColors();
   const [imageURL, setImageURL] = useState("");
+
+  useEffect(() => {
+    if (!startImageUrl) return;
+    setImageURL(startImageUrl);
+  }, [startImageUrl]);
 
   useEffect(() => {
     if (!selectedFile) {

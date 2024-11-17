@@ -1,9 +1,9 @@
-import { Box, Card, Chip, Typography } from "@mui/material";
+import { Box, Card, Chip, IconButton, Stack, Typography } from "@mui/material";
 import React, { useRef } from "react";
 import { useColors } from "../hooks/useColors";
 import Image from "./UI/Image";
 import { hexToRGB } from "../utils/functions/colorFunctions";
-import { Favorite, Visibility } from "@mui/icons-material";
+import { Favorite, Settings, Visibility } from "@mui/icons-material";
 import ClientLink from "./UI/ClientLink";
 import MyButton from "./UI/MyButton";
 import { RecipeShortInfo } from "../app/types";
@@ -14,21 +14,31 @@ import { useInView, motion } from "framer-motion";
 import Carousel from "./UI/Carousel";
 import { SwiperSlide } from "swiper/react";
 import { FreeMode, Scrollbar, Mousewheel } from "swiper/modules";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   recipe: RecipeShortInfo;
   animated?: boolean;
+  editable?: boolean;
 };
 
-const RecipeShort = ({ recipe, animated = false }: Props) => {
+const RecipeShort = ({ recipe, editable = false, animated = false }: Props) => {
   const colors = useColors();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: "some" });
+  const navigate = useNavigate();
   const recipeShort = (
     <MyCard>
-      <Typography variant="h5" component="h4">
-        {recipe.title}
-      </Typography>
+      <Stack direction={"row"} justifyContent={"space-between"}>
+        <Typography variant="h5" component="h4">
+          {recipe.title}
+        </Typography>
+        {editable && (
+          <IconButton onClick={() => navigate(`/recipes/${recipe.id}/update`)} size="medium">
+            <Settings />
+          </IconButton>
+        )}
+      </Stack>
       {recipe.mainImageUrl && (
         <Image
           sx={{

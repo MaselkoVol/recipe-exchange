@@ -96,7 +96,7 @@ const UserComment = forwardRef<HTMLDivElement, Props>(({ comment, setSelectedURL
       </Stack>
       {getComments && recipe && (
         <Stack direction={"row"} alignItems={"flex-start"} justifyContent={"center"}>
-          <IconButton onClick={() => setIsDelOpen(true)} size="large">
+          <IconButton color="primary" onClick={() => setIsDelOpen(true)} size="large">
             <DeleteOutline />
           </IconButton>
         </Stack>

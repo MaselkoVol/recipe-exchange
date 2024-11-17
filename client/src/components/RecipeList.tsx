@@ -19,6 +19,7 @@ type Props = {
   errorElem?: React.ReactNode;
   loadingElem?: React.ReactNode;
   animated?: boolean;
+  editable?: boolean;
 };
 
 const RecipeList = ({
@@ -32,6 +33,7 @@ const RecipeList = ({
   errorElem,
   loadingElem,
   animated = false,
+  editable = false,
 }: Props) => {
   return (
     <>
@@ -54,7 +56,7 @@ const RecipeList = ({
       ) : (
         <Stack spacing={2} sx={{ position: "relative" }}>
           {recipes.map((recipe) => (
-            <RecipeShort animated={animated} key={recipe.id} recipe={recipe} />
+            <RecipeShort editable={editable} animated={animated} key={recipe.id} recipe={recipe} />
           ))}
           {meta?.totalPages !== 1 && (
             <Box sx={{ display: "flex", justifyContent: "center" }}>

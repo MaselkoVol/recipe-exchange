@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } f
 import { useResizeObserver } from "../../../hooks/useResizeObserver";
 import { FormControl, InputLabel, styled, SxProps, TextareaAutosize } from "@mui/material";
 import { useColors } from "../../../hooks/useColors";
+import { UseFormSetValue } from "react-hook-form";
 
 const CustomTextArea = styled("textarea")(() => {
   const colors = useColors();
@@ -54,12 +55,15 @@ type Props = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
   isContrast?: boolean;
   fullWidth?: boolean;
   sx?: SxProps;
+  startValue?: string;
+  formValue?: [UseFormSetValue<any>, string];
 };
 
 const TextFieldMultiline = forwardRef<HTMLTextAreaElement, Props>(
-  ({ rows, label, onChange, isContrast = false, fullWidth = false, sx, ...rest }, ref) => {
+  ({ rows, label, onChange, isContrast = false, fullWidth = false, startValue, sx, formValue, ...rest }, ref) => {
     const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
     const size = useResizeObserver(textAreaRef);
+    const [value, setValue] = useState("");
 
     useImperativeHandle(ref, () => textAreaRef.current as HTMLTextAreaElement);
 
@@ -93,6 +97,19 @@ const TextFieldMultiline = forwardRef<HTMLTextAreaElement, Props>(
         }
       }
     };
+
+    useEffect(() => {
+      if (!startValue) return;
+      if (formValue) {
+        formValue[0](formValue[1], startValue);
+      } else if (textAreaRef.current) {
+        textAreaRef.current.value = startValue;
+      } else return;
+      // give some time to react on changes
+      requestAnimationFrame(() => {
+        changeSize();
+      });
+    }, [startValue]);
 
     useEffect(() => {
       changeSize();

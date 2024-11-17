@@ -15,6 +15,7 @@ const FavoriteRecipes = lazy(() => import("./pages/favoriteRecipes/FavoriteRecip
 const LikedRecipes = lazy(() => import("./pages/likedRecipes/LikedRecipes"));
 const AllRecipes = lazy(() => import("./pages/allRecipes/AllRecipes"));
 const UserPage = lazy(() => import("./pages/user/UserPage"));
+const UpdateRecipe = lazy(() => import("./pages/updateRecipe/UpdateRecipe"));
 
 export const router = createBrowserRouter([
   {
@@ -62,6 +63,14 @@ export const router = createBrowserRouter([
         ],
       },
       {
+        path: "recipes/:id/update",
+        element: (
+          <Suspense fallback={<LoadingPage />}>
+            <UpdateRecipe />
+          </Suspense>
+        ),
+      },
+      {
         path: "recipes/:id",
         element: (
           <Suspense fallback={<LoadingPage />}>
@@ -70,7 +79,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "recipe",
+        path: "recipes",
         element: (
           <Suspense fallback={<LoadingPage />}>
             <AllRecipes />

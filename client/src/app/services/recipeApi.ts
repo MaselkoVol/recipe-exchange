@@ -10,6 +10,19 @@ export const recipeApi = api.injectEndpoints({
         body: data,
       }),
     }),
+    updateRecipe: builder.mutation<void, { id: string; data: FormData }>({
+      query: ({ id, data }) => ({
+        url: `/recipes/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+    }),
+    deleteRecipe: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/recipes/${id}`,
+        method: "DELETE",
+      }),
+    }),
     getRecipe: builder.query<Recipe, string>({
       query: (id) => ({
         url: `/recipes/${id}`,
@@ -34,11 +47,13 @@ export const recipeApi = api.injectEndpoints({
     }),
   }),
 });
-export const { createRecipe, getRecipe, getAllRecipes } = recipeApi.endpoints;
+export const { createRecipe, getRecipe, getAllRecipes, updateRecipe, deleteRecipe } = recipeApi.endpoints;
 export const {
   useCreateRecipeMutation,
   useGetRecipeQuery,
   useLazyGetRecipeQuery,
   useLazyGetAllRecipesQuery,
   useGetAllRecipesQuery,
+  useUpdateRecipeMutation,
+  useDeleteRecipeMutation,
 } = recipeApi;
