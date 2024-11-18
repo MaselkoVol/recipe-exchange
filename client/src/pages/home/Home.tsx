@@ -9,6 +9,7 @@ import Footer from "../../components/Footer";
 import Carousel from "../../components/UI/Carousel";
 import { SwiperSlide } from "swiper/react";
 import { Keyboard, Mousewheel, Scrollbar } from "swiper/modules";
+import { BASE_URL } from "../../utils/constants";
 
 type Props = {};
 
@@ -65,7 +66,7 @@ const Home = (props: Props) => {
               maxWidth: "80%",
               paddingBottom: "30%",
             }}
-            src="https://www.pngall.com/wp-content/uploads/12/Cooking-PNG-Free-Image.png"
+            src={BASE_URL + "/static/home.png"}
           />
         </MyCard>
       </Container>

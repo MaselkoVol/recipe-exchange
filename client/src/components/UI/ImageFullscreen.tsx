@@ -16,8 +16,19 @@ const ImageFullscreen = ({ selectedURL, setSelectedURL }: Props) => {
   }, [selectedURL]);
   return (
     <Dialog fullScreen onClick={() => setSelectedURL(null)} open={!!selectedURL}>
-      <Box sx={{ display: "flex", height: "100%", justifyContent: "center", alignItems: "center" }}>
-        <Image sx={{ maxHeight: "90%", flex: 1, maxWidth: "90%", aspectRatio: "3/2" }} src={image || ""} />
+      <Box sx={{ display: "grid", height: "100%", width: "100%", justifyItems: "center" }}>
+        <Box
+          sx={{
+            maxWidth: "100vw",
+            aspectRatio: "4/3",
+            position: "relative",
+            top: "50%",
+            transform: "translateY(-50%)",
+            display: "flex",
+          }}
+        >
+          <Image sx={{ m: { xs: 2, sm: 4 }, flex: 1 }} src={image || ""} />
+        </Box>
       </Box>
     </Dialog>
   );

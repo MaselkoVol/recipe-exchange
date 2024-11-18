@@ -29,7 +29,7 @@ const RecipeShort = ({ recipe, editable = false, animated = false }: Props) => {
   const navigate = useNavigate();
   const recipeShort = (
     <MyCard>
-      <Stack direction={"row"} justifyContent={"space-between"}>
+      <Stack direction={"row"} justifyContent={"space-between"} alignItems={"flex-start"}>
         <Typography variant="h5" component="h4">
           {recipe.title}
         </Typography>
