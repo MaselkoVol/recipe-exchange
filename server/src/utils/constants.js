@@ -1,8 +1,11 @@
-const BASE_IP = process.env.NODE_ENV === "production" ? "192.168.0.138" : "192.168.0.138"; // 192.168.50.250
+const BASE_IP = process.env.NODE_ENV === "production" ? "0.0.0.0" : "localhost"; // 192.168.50.250
 const port = process.env.PORT || 5000;
-const BASE_URL = process.env.NODE_ENV === "production" ? `http://${BASE_IP}:${port}` : `http://${BASE_IP}:${port}`;
+const BASE_URL = `http://${BASE_IP}:${port}`;
+const REAL_URL = "https://recipe-exchange-server.onrender.com";
 
 module.exports = {
   BASE_URL,
   BASE_IP,
+  port,
+  REAL_URL,
 };

@@ -1,9 +1,9 @@
-const { BASE_URL } = require("./constants");
+const { REAL_URL } = require("./constants");
 
-const recipeImageNameToUrl = (name) => BASE_URL + "/uploads/recipes/" + name;
-const recipeMainImageNameToUrl = (name) => BASE_URL + "/uploads/recipes/" + name;
-const userAvatarNameToUrl = (name) => BASE_URL + "/uploads/current/" + name;
-const commentImagesNameToUrl = (name) => BASE_URL + "/uploads/recipes/" + name;
+const recipeImageNameToUrl = (name) => REAL_URL + "/uploads/recipes/" + name;
+const recipeMainImageNameToUrl = (name) => REAL_URL + "/uploads/recipes/" + name;
+const userAvatarNameToUrl = (name) => REAL_URL + "/uploads/current/" + name;
+const commentImagesNameToUrl = (name) => REAL_URL + "/uploads/recipes/" + name;
 
 module.exports = {
   recipeImageNameToUrl,

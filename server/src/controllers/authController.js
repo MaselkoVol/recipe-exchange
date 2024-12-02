@@ -79,6 +79,8 @@ const AuthController = {
       });
       res.cookie("jwt", refreshToken, {
         httpOnly: true,
+        secure: true,
+        sameSite: "None",
         maxAge: 24 * 60 * 60 * 1000,
       });
       return res.json({ accessToken });
@@ -128,7 +130,7 @@ const AuthController = {
         where: { refreshToken },
       });
       if (!existingUser) {
-        res.clearCookie("jwt", { httpOnly: true });
+        res.clearCookie("jwt", { httpOnly: true, secure: true, sameSite: "None" });
         return res.sendStatus(204);
       }
 
@@ -136,7 +138,7 @@ const AuthController = {
         where: { refreshToken },
         data: { refreshToken: null },
       });
-      res.clearCookie("jwt", { httpOnly: true });
+      res.clearCookie("jwt", { httpOnly: true, secure: true, sameSite: "None" });
       res.sendStatus(200);
     } catch (error) {
       return internalServerError(res);
